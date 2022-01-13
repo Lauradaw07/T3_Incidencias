@@ -112,14 +112,15 @@ public class Usuario {
 
     @Override
     public String toString() {
-        return "Usuario{" +
-                "nombre='" + nombre + '\'' +
-                ", dni='" + dni + '\'' +
-                ", usuarioRegistrado='" + usuarioRegistrado + '\'' +
-                ", correo='" + correo + '\'' +
-                ", telefono=" + telefono +
-                '}';
+        return "◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•" + "\n" +
+                "\s" + "\s" + "Nombre: " + nombre + "\n" +
+                "\s" + "\s" + "DNI: " + dni + "\n" +
+                "\s" + "\s" + "Nombre de usuario: " + usuarioRegistrado + "\n" +
+                "\s" + "\s" + "Correo electrónico: " + correo + "\n" +
+                "\s" + "\s" + "Número de teléfono" + telefono + "\n" +
+                "◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•" + "\n";
     }
+
 
 
     //Métodos

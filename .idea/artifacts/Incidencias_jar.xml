@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Incidencias:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Incidencias_jar</output-path>
+    <root id="archive" name="Incidencias.jar">
+      <element id="module-output" name="Incidencias" />
+    </root>
+  </artifact>
+</component>

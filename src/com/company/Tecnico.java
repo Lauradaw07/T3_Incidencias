@@ -98,13 +98,14 @@ public class Tecnico {
 
     @Override
     public String toString() {
-        return "Tecnico{" +
-                "id=" + id +
-                ", nombre='" + nombre + '\'' +
-                ", usuarioRegistrado='" + usuarioRegistrado + '\'' +
-                ", correo='" + correo + '\'' +
-                '}';
+        return "◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•" + "\n" +
+                "\s\s" + "ID: " + id + "\n" +
+                "\s\s" + "Nombre: " + nombre + "\n" +
+                "\s\s" + "Nombre de usuario: " + usuarioRegistrado + "\n" +
+                "\s\s" + "Correo electrónico: " + correo + "\n" +
+                "◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•" + "\n";
     }
+
 
     //Métodos
     public boolean compruebaUsuario (String usuario){

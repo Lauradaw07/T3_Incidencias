@@ -1,6 +1,4 @@
 package com.company;
-
-import java.util.Calendar;
 import java.util.Scanner;
 
 public class Main {
@@ -10,6 +8,8 @@ public class Main {
         Usuario usuario1 = new Usuario();
 
         Usuario usuario2 = new Usuario();
+
+        Usuario usuarioAuxiliar = null;
 
         //------------------------------------------------------------------------------------------------------------------------
 
@@ -28,25 +28,17 @@ public class Main {
         //--------------------------------------------------------------------------------------------------------------------------------------------------------
 
         //Incidencias
-        Incidencia incidencia1 = new Incidencia();
+        Incidencia incidencia1;
 
-        Incidencia incidencia2 = new Incidencia();
+        Incidencia incidencia2;
 
-        Incidencia incidencia3 = new Incidencia();
-
-        Incidencia incidencia4 = new Incidencia();
-
-        Incidencia incidencia5 = new Incidencia();
-
-        Incidencia incidencia6 = new Incidencia();
-
-        Incidencia incidenciaAuxiliar = null;
+        Incidencia incidencia3;
 
         //Variables
-        String usuario, password, confirmacionPassword, passwordRegistrada, nuevaPassword, borrarUsuario, borrarTecnico;
+        String usuario, password, confirmacionPassword, nuevaPassword, borrarUsuario, borrarTecnico;
 
         //Contadores
-        int contadorUsuarios = 0, contadorTecnicos = 0, contadorIncidencias = 0, contadorIncidenciasAsignadas = 0;
+        int contadorUsuarios = 0, contadorTecnicos = 0, contadorIncidencias = 0, contadorUsuariosAdmin = 0;
 
         //OPCIONES MENU
         int opcionMenuPrincipal, opcionMenuUsuario, opcionMenuTecnico, opcionMenuAdministrador, opcionMenuPrioridadIncidencias;
@@ -65,7 +57,12 @@ public class Main {
         String comentario, prioridad = "";
 
         //Variables asignación incidencia
-        String parseoId = "", idIncidencia, idTecnico;
+        String idIncidencia, idTecnico;
+
+        //Variables cerrar incidencia
+        String idCerrarIncidencia, comentarioCerrarIncidencia;
+
+        //--------------------------------------------------------------------------------------------------------------------------------------------------------
 
         do {
             //Reseteo banderas
@@ -75,7 +72,7 @@ public class Main {
 
             //Menú principal
             Scanner sc = new Scanner(System.in);
-            System.out.println("---------------------------------------------------------------------");
+            System.out.println(ANSI_BLUE + "---------------------------------------------------------------------");
             System.out.println("|          BIENVENIDX AL SISTEMA DE GESTIÓN DE INCIDENCIAS          |");
             System.out.println("---------------------------------------------------------------------");
             System.out.println("| 1.- Registrarse                                                   |");
@@ -84,7 +81,7 @@ public class Main {
             System.out.println("| 4.- Iniciar sesión como administrador                             |");
             System.out.println("| 5.- Cerrar el programa                                            |");
             System.out.println("---------------------------------------------------------------------");
-            System.out.println("Elija una opción: \s" );
+            System.out.println("Elija una opción: \s" + ANSI_RESET);
             opcionMenuPrincipal = Integer.parseInt(sc.nextLine());
 
             switch (opcionMenuPrincipal){
@@ -94,22 +91,20 @@ public class Main {
 
                     if (contadorUsuarios < 2){
                         do {
-                            //TODO ARREGLAR VOLVER A DAR DE ALTA UN USUARIO
-                            //TODO CAMBIAR CONFIRMACION CONTRASEÑA
                             System.out.println("Introduzca su nombre:");
                             nombreUsuario = sc.nextLine();
 
                             System.out.println("Introduzca su nombre de usuario:");
                             usuarioUsuario = sc.nextLine();
 
+                            System.out.println("Introduzca su correo electrónico:");
+                            correoUsuario = sc.nextLine();
+
                             System.out.println("Introduzca su contraseña:");
                             passwordUsuario = sc.nextLine();
 
                             System.out.println("Confirme su contraseña:");
                             confirmacionPassword = sc.nextLine();
-
-                            System.out.println("Introduzca su correo electrónico:");
-                            correoUsuario = sc.nextLine();
 
                             System.out.println("Introduzca su DNI:");
                             dniUsuario = sc.nextLine();
@@ -119,16 +114,17 @@ public class Main {
 
                             usuarioDeRegistro = new Usuario(nombreUsuario, dniUsuario, usuarioUsuario, correoUsuario, passwordUsuario, confirmacionPassword, telefonoUsuario);
 
+                            //Aquí se comprueba que las contraseñas son iguales
                             if (usuarioDeRegistro.confirmaPassword(passwordUsuario, confirmacionPassword)) {
-                                System.out.println("---------------------------------------------------------------------");
+                                System.out.println(ANSI_GREEN + "---------------------------------------------------------------------");
                                 System.out.println("Usuario registrado con éxito!!");
-                                System.out.println("---------------------------------------------------------------------");
+                                System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                             } else {
+                                System.out.println(ANSI_RED + "---------------------------------------------------------------------");
                                 System.out.println("ERROR: Las contraseñas introducidas son diferentes");
-                                System.out.println("---------------------------------------------------------------------");
+                                System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                             }
                         }while (!usuarioDeRegistro.confirmaPassword(passwordUsuario, confirmacionPassword));
-
 
                         if (usuario1.getNombre() == null){
                             usuario1 = usuarioDeRegistro;
@@ -138,31 +134,41 @@ public class Main {
                             contadorUsuarios++;
                         }
                     } else {
-                        System.out.println("---------------------------------------------------------------------");
-                        System.out.println("Se ha superado el máximo de usuarios registrados!!");
-                        System.out.println("---------------------------------------------------------------------");
+                        System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                        System.out.println("ERROR: Se ha superado el máximo de usuarios registrados!!");
+                        System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                     }
                     break;
                 case 2:
                     //INICIAR SESIÓN COMO USUARIO
                     do {
-                        System.out.println("\nIntroduzca su nombre de usuario:");
+                        System.out.println("Introduzca su nombre de usuario:");
                         usuario = sc.nextLine();
 
                         System.out.println("Introduzca su contraseña:");
                         password = sc.nextLine();
 
-                        if (!usuario1.compruebaUsuario(usuario) && !usuario1.compruebaPassword(password) && !usuario2.compruebaUsuario(usuario) && !usuario2.compruebaPassword(password)){
+                        //Aquí se comprueba que la contraseña introducida y la registrada son iguales
+                        if (usuario1.compruebaUsuario(usuario) && usuario1.compruebaPassword(password)) {
+                            usuarioAuxiliar = usuario1;
+                        }
+
+                        if (usuario2.compruebaUsuario(usuario) && usuario2.compruebaPassword(password)) {
+                            usuarioAuxiliar = usuario2;
+                        }
+
+                        if ((!usuario1.compruebaUsuario(usuario) || !usuario1.compruebaPassword(password)) && (!usuario2.compruebaUsuario(usuario) || !usuario2.compruebaPassword(password))) {
+                            System.out.println(ANSI_RED + "---------------------------------------------------------------------");
                             System.out.println("ERROR: Usuario o contraseña incorrectos!!");
-                            System.out.println("---------------------------------------------------------------------");
+                            System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                         }
 
                     } while (!usuario1.compruebaUsuario(usuario) && !usuario1.compruebaPassword(password) && !usuario2.compruebaUsuario(usuario) && !usuario2.compruebaPassword(password));
 
-                    if (usuario1.compruebaUsuario(usuario) && usuario1.compruebaPassword(password)) {
+                    if (usuarioAuxiliar != null) {
                         //Menú usuario
                         do {
-                            System.out.println("     ☆ BIENVENIDX " + usuario1.getNombre() + ", TIENE USTED PERFIL DE USUARIO NORMAL ☆");
+                            System.out.println(ANSI_YELLOW + "     ☆ BIENVENIDX " + usuarioAuxiliar.getNombre() + ", TIENE USTED PERFIL DE USUARIO NORMAL ☆");
                             System.out.println("---------------------------------------------------------------------");
                             System.out.println("| Menú:                                                             |");
                             System.out.println("| 1.- Registrar nueva incidencia                                    |");
@@ -172,18 +178,16 @@ public class Main {
                             System.out.println("| 5.- Cambiar clave de acceso                                       |");
                             System.out.println("| 6.- Cerrar sesión                                                 |");
                             System.out.println("---------------------------------------------------------------------");
-                            System.out.println("Elija una opción: \s" );
+                            System.out.println("Elija una opción: \s" + ANSI_RESET);
                             opcionMenuUsuario = Integer.parseInt(sc.nextLine());
 
                             switch (opcionMenuUsuario) {
                                 case 1:
                                     //REGISTRAR NUEVA INCIDENCIA
-                                    //TODO ARREGLAR MÁXIMO DE INCIDENCIAS (3 POR USUARIO)
-
                                     if (contadorIncidencias < 3) {
-                                        Incidencia incidenciaDeRegistro;
 
-                                        if (usuario1.getIncidencia1() == null) {
+
+                                        if (usuarioAuxiliar.getIncidencia1() == null) {
                                             System.out.println("Introduzca un comentario:");
                                             comentario = sc.nextLine();
 
@@ -204,22 +208,19 @@ public class Main {
                                                     prioridad = "Alta";
                                                     break;
                                                 default:
+                                                    System.out.println(ANSI_RED + "-------------------------------------------");
                                                     System.out.println("ERROR: Acción imposible!!");
-                                                    System.out.println("-----------------------------------------------------------------------------------");
+                                                    System.out.println("-------------------------------------------\n" + ANSI_RESET);
                                                     break;
                                             }
 
-                                            incidencia1 = new Incidencia(usuario1, null, comentario, prioridad, false,false);
+                                            //Aquí se registra la incidencia1
+                                            incidencia1 = new Incidencia(usuarioAuxiliar,null, comentario, prioridad, false,false, "No existen comentarios todavía");
 
-                                            usuario1.setIncidencia1(incidencia1);
-
-                                            System.out.println("---------------------------------------------------------------------");
-                                            System.out.println("Incidencia registrada con éxito!!");
-                                            System.out.println("---------------------------------------------------------------------");
+                                            usuarioAuxiliar.setIncidencia1(incidencia1);
 
                                             contadorIncidencias++;
-
-                                        } else if (usuario1.getIncidencia2() == null) {
+                                        } else if (usuarioAuxiliar.getIncidencia2() == null) {
                                             System.out.println("Introduzca un comentario:");
                                             comentario = sc.nextLine();
 
@@ -240,26 +241,22 @@ public class Main {
                                                     prioridad = "Alta";
                                                     break;
                                                 default:
+                                                    System.out.println(ANSI_RED + "---------------------------------------");
                                                     System.out.println("ERROR: Acción imposible!!");
-                                                    System.out.println("-----------------------------------------------------------------------------------");
+                                                    System.out.println("---------------------------------------\n" + ANSI_RESET);
                                                     break;
                                             }
 
-                                            incidencia2 = new Incidencia(usuario1, null ,comentario, prioridad, false,false);
+                                            //Aquí se registra la incidencia2
+                                            incidencia2 = new Incidencia(usuarioAuxiliar,null, comentario, prioridad,false, false, "No existen comentarios todavía");
 
-                                            usuario1.setIncidencia2(incidencia2);
-
-                                            System.out.println("---------------------------------------------------------------------");
-                                            System.out.println("Incidencia registrada con éxito!!");
-                                            System.out.println("---------------------------------------------------------------------");
+                                            usuarioAuxiliar.setIncidencia2(incidencia2);
 
                                             contadorIncidencias++;
-
                                         } else {
                                             System.out.println("Introduzca un comentario:");
                                             comentario = sc.nextLine();
 
-
                                             System.out.println("Indique la prioridad de la incidencia:");
                                             System.out.println("1.- Baja");
                                             System.out.println("2.- Media");
@@ -277,63 +274,80 @@ public class Main {
                                                     prioridad = "Alta";
                                                     break;
                                                 default:
+                                                    System.out.println(ANSI_RED + "-------------------------------------------------");
                                                     System.out.println("ERROR: Acción imposible!!");
-                                                    System.out.println("-----------------------------------------------------------------------------------");
+                                                    System.out.println("-------------------------------------------------\n" + ANSI_RESET);
                                                     break;
                                             }
 
-                                            incidencia3 = new Incidencia(usuario1,null,comentario, prioridad,false,false);
+                                            //Aquí se registra la incidencia3
+                                            incidencia3 = new Incidencia(usuarioAuxiliar, null,comentario, prioridad, false,false, "No existen comentarios todavía");
 
-                                            usuario1.setIncidencia3(incidencia3);
-
-                                            System.out.println("---------------------------------------------------------------------");
-                                            System.out.println("Incidencia registrada con éxito!!");
-                                            System.out.println("---------------------------------------------------------------------");
+                                            usuarioAuxiliar.setIncidencia3(incidencia3);
 
                                             contadorIncidencias++;
                                         }
                                     } else {
-                                        System.out.println("---------------------------------------------------------------------");
-                                        System.out.println("Se ha superado el número máximo de incidencias registradas!!");
-                                        System.out.println("---------------------------------------------------------------------");
+                                        System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                                        System.out.println("ERROR: Se ha superado el número máximo de incidencias registradas!!");
+                                        System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                                     }
                                     break;
                                 case 2:
                                     //CONSULTAR INCIDENCIAS ABIERTAS
-                                    if (incidencia1.getUsuario() != null){
-                                        if (!incidencia1.isResuelto()){
-                                            System.out.println(incidencia1.muestraIncidencia());
+                                    if (usuarioAuxiliar.getIncidencia1() != null) {
+                                        if (!usuarioAuxiliar.getIncidencia1().isResuelto()) {
+                                            System.out.println(usuarioAuxiliar.getIncidencia1().muestraIncidencia() + "\n");
                                         }
                                     }
 
-                                    if (incidencia2.getUsuario() != null){
-                                        if (!incidencia2.isResuelto()){
-                                            System.out.println(incidencia2.muestraIncidencia());
+                                    if (usuarioAuxiliar.getIncidencia2() != null) {
+                                        if (!usuarioAuxiliar.getIncidencia2().isResuelto()) {
+                                            System.out.println(usuarioAuxiliar.getIncidencia2().muestraIncidencia() + "\n");
                                         }
                                     }
 
-                                    if (incidencia3.getUsuario() != null){
-                                        if (!incidencia3.isResuelto()){
-                                            System.out.println(incidencia3.muestraIncidencia());
+                                    if (usuarioAuxiliar.getIncidencia3() != null) {
+                                        if (!usuarioAuxiliar.getIncidencia3().isResuelto()) {
+                                            System.out.println(usuarioAuxiliar.getIncidencia3().muestraIncidencia() + "\n");
                                         }
                                     }
 
-                                    if (incidencia1.getUsuario() == null && incidencia2.getUsuario() == null && incidencia3.getUsuario() == null){
-                                        System.out.println("---------------------------------------------------------------------");
-                                        System.out.println("No existen incidencias abiertas registradas!!");
-                                        System.out.println("---------------------------------------------------------------------");
+                                    if (usuarioAuxiliar.getIncidencia1().isResuelto() && usuarioAuxiliar.getIncidencia2().isResuelto() && usuarioAuxiliar.getIncidencia3().isResuelto()) {
+                                        System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                                        System.out.println("ERROR: No existen incidencias abiertas registradas!!");
+                                        System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                                     }
-
                                     break;
                                 case 3:
                                     //CONSULTAR INCIDENCIAS CERRADAS
-                                    //TODO CONSULTAR INCIDENCIAS CERRADAS
+                                    if (usuarioAuxiliar.getIncidencia1() != null) {
+                                        if (usuarioAuxiliar.getIncidencia1().isResuelto()) {
+                                            System.out.println(usuarioAuxiliar.getIncidencia1().muestraIncidencia() + "\n");
+                                        }
+                                    }
+
+                                    if (usuarioAuxiliar.getIncidencia2() != null) {
+                                        if (usuarioAuxiliar.getIncidencia2().isResuelto()) {
+                                            System.out.println(usuarioAuxiliar.getIncidencia2().muestraIncidencia() + "\n");
+                                        }
+                                    }
+
+                                    if (usuarioAuxiliar.getIncidencia3() != null) {
+                                        if (usuarioAuxiliar.getIncidencia3().isResuelto()) {
+                                            System.out.println(usuarioAuxiliar.getIncidencia3().muestraIncidencia() + "\n");
+                                        }
+                                    }
+
+                                    if (usuarioAuxiliar.getIncidencia1() == null && usuarioAuxiliar.getIncidencia2() == null && usuarioAuxiliar.getIncidencia3() == null) {
+                                        System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                                        System.out.println("ERROR: No existen incidencias abiertas registradas!!");
+                                        System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+                                    }
                                     break;
                                 case 4:
                                     //MOSTRAR PERFIL DEL USUARIO
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                     System.out.println(usuario1.toString());
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                     break;
                                 case 5:
                                     //CAMBIAR CONTRASEÑA USUARIO
@@ -341,236 +355,42 @@ public class Main {
                                         System.out.println("Introduzca su contraseña actual:");
                                         password = sc.nextLine();
 
-                                        if (!usuario1.compruebaPassword(password)){
+                                        if (!usuarioAuxiliar.compruebaPassword(password)){
+                                            System.out.println(ANSI_RED + "---------------------------------------------------------------------");
                                             System.out.println("ERROR: Contraseña incorrecta!!");
-                                            System.out.println("---------------------------------------------------------------------");
+                                            System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                                         }
 
-                                    }while (!usuario1.compruebaPassword(password));
+                                    }while (!usuarioAuxiliar.compruebaPassword(password));
 
-                                    System.out.println("Introduzca su nueva contraseña:");
-                                    nuevaPassword = sc.nextLine();
-                                    usuario1.setPasswordRegistrada(nuevaPassword);
+                                    if (usuarioAuxiliar.compruebaPassword(password)){
+                                        System.out.println("Introduzca su nueva contraseña:");
+                                        nuevaPassword = sc.nextLine();
+                                        usuarioAuxiliar.setPasswordRegistrada(nuevaPassword);
+                                        System.out.println(ANSI_GREEN + "-------------------------------------------------");
+                                        System.out.println("Clave cambiada con éxito!!");
+                                        System.out.println("-------------------------------------------------\n" + ANSI_RESET);
+                                    }
+
                                     break;
                                 case 6:
                                     //CERRAR SESIÓN USUARIO
                                     contadorIncidencias = 0;
+                                    usuarioAuxiliar = null;
                                     cerrarSesionUsuario = true;
                                     break;
                                 default:
+                                    System.out.println(ANSI_RED + "-------------------------------------------------");
                                     System.out.println("ERROR: Acción imposible!!");
-                                    System.out.println("---------------------------------------------------------------------");
+                                    System.out.println("-------------------------------------------------\n" + ANSI_RESET);
                                     break;
                             }
 
-                        } while (!cerrarSesionUsuario);
-                    }else if (usuario2.compruebaUsuario(usuario) && usuario2.compruebaPassword(password)) {
-                        do {
-                            System.out.println("     ☆ BIENVENIDX " + usuario2.getNombre() + ", TIENE USTED PERFIL DE USUARIO NORMAL ☆");
-                            System.out.println("---------------------------------------------------------------------");
-                            System.out.println("| Menú:                                                             |");
-                            System.out.println("| 1.- Registrar nueva incidencia                                    |");
-                            System.out.println("| 2.- Consultar mis incidencias abiertas                            |");
-                            System.out.println("| 3.- Consultar mis incidencias cerradas                            |");
-                            System.out.println("| 4.- Mostrar mi perfil                                             |");
-                            System.out.println("| 5.- Cambiar clave de acceso                                       |");
-                            System.out.println("| 6.- Cerrar sesión                                                 |");
-                            System.out.println("---------------------------------------------------------------------");
-                            System.out.println("Elija una opción: \s" );
-                            opcionMenuUsuario = Integer.parseInt(sc.nextLine());
-
-                            switch (opcionMenuUsuario) {
-                                case 1:
-                                    //REGISTRAR NUEVA INCIDENCIA
-                                    //TODO ARREGLAR MÁXIMO DE INCIDENCIAS (3 POR USUARIO)
-
-                                    if (contadorIncidencias < 3) {
-                                        Incidencia incidenciaDeRegistro;
-
-                                        if (usuario2.getIncidencia1() == null) {
-                                            System.out.println("Introduzca un comentario:");
-                                            comentario = sc.nextLine();
-
-                                            System.out.println("Indique la prioridad de la incidencia:");
-                                            System.out.println("1.- Baja");
-                                            System.out.println("2.- Media");
-                                            System.out.println("3.- Alta");
-                                            opcionMenuPrioridadIncidencias = Integer.parseInt(sc.nextLine());
-
-                                            switch (opcionMenuPrioridadIncidencias) {
-                                                case 1:
-                                                    prioridad = "Baja";
-                                                    break;
-                                                case 2:
-                                                    prioridad = "Media";
-                                                    break;
-                                                case 3:
-                                                    prioridad = "Alta";
-                                                    break;
-                                                default:
-                                                    System.out.println("ERROR: Acción imposible!!");
-                                                    System.out.println("-----------------------------------------------------------------------------------");
-                                                    break;
-                                            }
-
-                                            incidencia4 = new Incidencia(usuario2, null,comentario, prioridad, false,false);
-
-                                            usuario2.setIncidencia1(incidencia4);
-
-                                            System.out.println("---------------------------------------------------------------------");
-                                            System.out.println("Incidencia registrada con éxito!!");
-                                            System.out.println("---------------------------------------------------------------------");
-
-                                            contadorIncidencias++;
-
-                                        } else if (usuario2.getIncidencia2() == null) {
-                                            System.out.println("Introduzca un comentario:");
-                                            comentario = sc.nextLine();
-
-                                            System.out.println("Indique la prioridad de la incidencia:");
-                                            System.out.println("1.- Baja");
-                                            System.out.println("2.- Media");
-                                            System.out.println("3.- Alta");
-                                            opcionMenuPrioridadIncidencias = Integer.parseInt(sc.nextLine());
-
-                                            switch (opcionMenuPrioridadIncidencias) {
-                                                case 1:
-                                                    prioridad = "Baja";
-                                                    break;
-                                                case 2:
-                                                    prioridad = "Media";
-                                                    break;
-                                                case 3:
-                                                    prioridad = "Alta";
-                                                    break;
-                                                default:
-                                                    System.out.println("ERROR: Acción imposible!!");
-                                                    System.out.println("-----------------------------------------------------------------------------------");
-                                                    break;
-                                            }
-
-                                            incidencia5 = new Incidencia(usuario2, null,comentario, prioridad, false,false);
-
-                                            usuario2.setIncidencia2(incidencia5);
-
-                                            System.out.println("---------------------------------------------------------------------");
-                                            System.out.println("Incidencia registrada con éxito!!");
-                                            System.out.println("---------------------------------------------------------------------");
-
-                                            contadorIncidencias++;
-
-                                        } else {
-                                            System.out.println("Introduzca un comentario:");
-                                            comentario = sc.nextLine();
-
-                                            System.out.println("Indique la prioridad de la incidencia:");
-                                            System.out.println("1.- Baja");
-                                            System.out.println("2.- Media");
-                                            System.out.println("3.- Alta");
-                                            opcionMenuPrioridadIncidencias = Integer.parseInt(sc.nextLine());
-
-                                            switch (opcionMenuPrioridadIncidencias) {
-                                                case 1:
-                                                    prioridad = "Baja";
-                                                    break;
-                                                case 2:
-                                                    prioridad = "Media";
-                                                    break;
-                                                case 3:
-                                                    prioridad = "Alta";
-                                                    break;
-                                                default:
-                                                    System.out.println("ERROR: Acción imposible!!");
-                                                    System.out.println("-----------------------------------------------------------------------------------");
-                                                    break;
-                                            }
-
-                                            incidencia6 = new Incidencia(usuario2,null,comentario, prioridad, false,false);
-
-                                            usuario2.setIncidencia3(incidencia6);
-
-                                            System.out.println("---------------------------------------------------------------------");
-                                            System.out.println("Incidencia registrada con éxito!!");
-                                            System.out.println("---------------------------------------------------------------------");
-
-                                            contadorIncidencias++;
-                                        }
-                                    } else {
-                                        System.out.println("---------------------------------------------------------------------");
-                                        System.out.println("Se ha superado el número máximo de incidencias registradas!!");
-                                        System.out.println("---------------------------------------------------------------------\n");
-                                    }
-
-                                    break;
-                                case 2:
-                                    //CONSULTAR INCIDENCIAS ABIERTAS
-                                    if (incidencia4.getUsuario() != null){
-                                        if (!incidencia4.isResuelto()){
-                                            System.out.println(incidencia4.muestraIncidencia());
-                                        }
-                                    }
-
-                                    if (incidencia5.getUsuario() != null){
-                                        if (!incidencia5.isResuelto()){
-                                            System.out.println(incidencia5.muestraIncidencia());
-                                        }
-                                    }
-
-                                    if (incidencia6.getUsuario() != null){
-                                        if (!incidencia6.isResuelto()){
-                                            System.out.println(incidencia6.muestraIncidencia());
-                                        }
-                                    }
-
-                                    if (incidencia4.getUsuario() == null && incidencia5.getUsuario() == null && incidencia6.getUsuario() == null){
-                                        System.out.println("---------------------------------------------------------------------");
-                                        System.out.println("No existen incidencias abiertas registradas!!");
-                                        System.out.println("---------------------------------------------------------------------");
-                                    }
-
-                                    break;
-                                case 3:
-                                    //CONSULTAR INCIDENCIAS CERRADAS
-                                    //TODO CONSULTAR INCIDENCIAS CERRADAS
-                                    break;
-                                case 4:
-                                    //MOSTRAR PERFIL DEL USUARIO
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
-                                    System.out.println(usuario2.toString());
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
-                                    break;
-                                case 5:
-                                    //CAMBIAR CONTRASEÑA USUARIO
-                                    do {
-                                        System.out.println("Introduzca su contraseña actual:");
-                                        password = sc.nextLine();
-
-                                        if (!usuario2.compruebaPassword(password)){
-                                            System.out.println("ERROR: Contraseña incorrecta!!");
-                                            System.out.println("---------------------------------------------------------------------");
-                                        }
-
-                                    }while (!usuario2.compruebaPassword(password));
-
-                                    System.out.println("Introduzca su nueva contraseña:");
-                                    nuevaPassword = sc.nextLine();
-                                    usuario2.setPasswordRegistrada(nuevaPassword);
-                                    break;
-                                case 6:
-                                    //CERRAR SESIÓN USUARIO
-                                    contadorIncidencias = 0;
-                                    cerrarSesionUsuario = true;
-                                    break;
-                                default:
-                                    System.out.println("ERROR: Acción imposible!!");
-                                    System.out.println("---------------------------------------------------------------------");
-                                    break;
-                            }
-
-                        } while (!cerrarSesionUsuario);
-                    }else{
-                        System.out.println("Usuario o contraseña incorrectos!! \n");
-                        System.out.println("---------------------------------------------------------------------");
+                        }  while (!cerrarSesionUsuario);
+                    }  else{
+                        System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                        System.out.println("ERROR: Usuario o contraseña incorrectos!!");
+                        System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                     }
                     break;
                 case 3:
@@ -582,6 +402,7 @@ public class Main {
                         System.out.println("Introduzca su contraseña:");
                         password = sc.nextLine();
 
+                        //Aquí se comprueba que la contraseña introducida y la registrada sean iguales
                         if (tecnico1.compruebaUsuario(usuario) && tecnico1.compruebaPassword(password)) {
                             tecnicoAuxiliar = tecnico1;
                         }
@@ -591,17 +412,17 @@ public class Main {
                         }
 
                         if ((!tecnico1.compruebaUsuario(usuario) || !tecnico1.compruebaPassword(password)) && (!tecnico2.compruebaUsuario(usuario) || !tecnico2.compruebaPassword(password))) {
+                            System.out.println(ANSI_RED + "---------------------------------------------------------------------\n");
                             System.out.println("ERROR: Usuario o contraseña incorrectos!!");
-                            System.out.println("---------------------------------------------------------------------\n");
+                            System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                         }
 
                     } while (!tecnico1.compruebaUsuario(usuario) && !tecnico1.compruebaPassword(password) && !tecnico2.compruebaUsuario(usuario) && !tecnico2.compruebaPassword(password));
 
                     if (tecnicoAuxiliar != null) {
-                        //Menú técnico
+                        //MENÚ TÉCNICO
                         do {
-
-                            System.out.println("    ☆ BIENVENIDX " + tecnicoAuxiliar.getNombre() + ", TIENE USTED PERFIL DE TÉCNICO ☆");
+                            System.out.println(ANSI_CYAN + "    ☆ BIENVENIDX " + tecnicoAuxiliar.getNombre() + ", TIENE USTED PERFIL DE TÉCNICO ☆");
                             System.out.println("---------------------------------------------------------------------");
                             System.out.println("| Menú:                                                             |");
                             System.out.println("| 1.- Consultar las incidencias que tengo asignadas                 |");
@@ -611,30 +432,110 @@ public class Main {
                             System.out.println("| 5.- Cambiar clave de acceso                                       |");
                             System.out.println("| 6.- Cerrar sesión                                                 |");
                             System.out.println("---------------------------------------------------------------------");
-                            System.out.println("Elija una opción: \s" );
-
+                            System.out.println("Elija una opción: \s" + ANSI_RESET);
                             opcionMenuTecnico = Integer.parseInt(sc.nextLine());
 
                             switch (opcionMenuTecnico) {
                                 case 1:
                                     //CONSULTAR INCIDENCIAS ASIGNADAS
-                                    //TODO CONSULTAR INCIDENCIAS ASIGNADAS
+                                    if (tecnicoAuxiliar.getIncidencia1() != null){
+                                        if (tecnicoAuxiliar.getIncidencia1().isAsignada()){
+                                            System.out.println(tecnicoAuxiliar.getIncidencia1() + "\n");
+                                        }
+                                    }
 
+                                    if (tecnicoAuxiliar.getIncidencia2() != null){
+                                        if (tecnicoAuxiliar.getIncidencia2().isAsignada()){
+                                            System.out.println(tecnicoAuxiliar.getIncidencia2() + "\n");
+                                        }
+                                    }
+
+                                    if (!tecnicoAuxiliar.getIncidencia1().isAsignada() && !tecnicoAuxiliar.getIncidencia2().isAsignada()){
+                                        System.out.println(ANSI_RED + "----------------------------------------------------");
+                                        System.out.println("ERROR: No existen incidencias asignadas!!");
+                                        System.out.println("----------------------------------------------------\n" + ANSI_RESET);
+                                    }
                                     break;
                                 case 2:
                                     //MARCAR INCIDENCIA COMO CERRADA
-                                    //TODO MARCAR INCIDENCIA COMO CERRADA
+                                    boolean hayIncidenciasAsignadas = false;
+
+                                    if (tecnicoAuxiliar.getIncidencia1() != null){
+                                        if (tecnicoAuxiliar.getIncidencia1().isAsignada()) {
+                                            if (tecnicoAuxiliar.getIncidencia1().isAsignada()) {
+                                                System.out.println(tecnicoAuxiliar.getIncidencia1());
+                                                hayIncidenciasAsignadas = true;
+                                            }
+                                        }
+                                    }
+
+                                    if (tecnicoAuxiliar.getIncidencia2() != null){
+                                        if (tecnicoAuxiliar.getIncidencia2().isAsignada()){
+                                            if (tecnicoAuxiliar.getIncidencia2().isAsignada()){
+                                                System.out.println(tecnicoAuxiliar.getIncidencia2());
+                                                hayIncidenciasAsignadas = true;
+                                            }
+                                        }
+                                    }
+
+                                    if (!tecnicoAuxiliar.getIncidencia1().isAsignada() && !tecnicoAuxiliar.getIncidencia2().isAsignada()){
+                                        System.out.println(ANSI_RED + "----------------------------------------------------");
+                                        System.out.println("ERROR: No existen incidencias asignadas!!");
+                                        System.out.println("----------------------------------------------------\n" + ANSI_RESET);
+                                    }
+
+                                    if (hayIncidenciasAsignadas){
+                                        System.out.println("Introduzca la id de la incidencia que quiere cerrar:");
+
+                                        idCerrarIncidencia = sc.nextLine();
+
+                                        //Aquí se comprueba que las ID sean iguales
+                                        if (tecnicoAuxiliar.getIncidencia1() != null && Integer.parseInt(idCerrarIncidencia) == tecnicoAuxiliar.getIncidencia1().getId()){
+                                            System.out.println("Introduzca un comentario:");
+                                            comentarioCerrarIncidencia = sc.nextLine();
+
+                                            tecnicoAuxiliar.getIncidencia1().setAsignada(false);
+
+                                            tecnicoAuxiliar.getIncidencia1().setResuelto(true);
+
+                                            tecnicoAuxiliar.getIncidencia1().setComentarioTecnico(comentarioCerrarIncidencia);
+
+                                            //Aquí se comprueba que las ID sean iguales
+                                        }else if (tecnicoAuxiliar.getIncidencia2() != null && Integer.parseInt(idCerrarIncidencia) == tecnicoAuxiliar.getIncidencia2().getId()){
+                                            tecnicoAuxiliar.getIncidencia2().setResuelto(true);
+
+                                            System.out.println("Introduzca un comentario:");
+                                            comentarioCerrarIncidencia = sc.nextLine();
+
+                                            tecnicoAuxiliar.getIncidencia2().setAsignada(false);
+
+                                            tecnicoAuxiliar.getIncidencia2().setResuelto(true);
+
+                                            tecnicoAuxiliar.getIncidencia2().setComentarioTecnico(comentarioCerrarIncidencia);
+                                        } else {
+                                            System.out.println(ANSI_RED + "-------------------------------------------------------------------------------------------");
+                                            System.out.println("ERROR: La id introducida no coincide con la id de ninguna incidencia registrada!!");
+                                            System.out.println("-------------------------------------------------------------------------------------------\n" + ANSI_RESET);
+                                        }
+                                    }
                                     break;
                                 case 3:
                                     //CONSULTAR INCIDENCIAS RESUELTAS
-                                    //TODO CONSULTAR INCIDENCIAS RESUELTAS
+                                    if (tecnicoAuxiliar.getIncidencia1() != null){
+                                        if (tecnicoAuxiliar.getIncidencia1().isResuelto()){
+                                            System.out.println(tecnicoAuxiliar.getIncidencia1().muestraIncidencia() + "\n");
+                                        }
+                                    }
 
+                                    if (tecnicoAuxiliar.getIncidencia2() != null){
+                                        if (tecnicoAuxiliar.getIncidencia2().isResuelto()){
+                                            System.out.println(tecnicoAuxiliar.getIncidencia2().muestraIncidencia() + "\n");
+                                        }
+                                    }
                                     break;
                                 case 4:
                                     //MOSTRAR PERFIL TECNICO
-                                    System.out.println("---------------------------------------------------------------------");
                                     System.out.println(tecnicoAuxiliar.toString());
-                                    System.out.println("---------------------------------------------------------------------");
                                     break;
                                 case 5:
                                     //CAMBIAR CONTRASEÑA TECNICO
@@ -643,16 +544,21 @@ public class Main {
                                         password = sc.nextLine();
 
                                         if (!tecnicoAuxiliar.compruebaPassword(password)){
+                                            System.out.println(ANSI_RED + "---------------------------------------------------------------------");
                                             System.out.println("ERROR: Contraseña incorrecta!!");
-                                            System.out.println("---------------------------------------------------------------------");
+                                            System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                                         }
 
                                     }while (!tecnicoAuxiliar.compruebaPassword(password));
 
+                                    //Aquí se comprueba que las contraseñas coincidan
                                     if (tecnicoAuxiliar.compruebaPassword(password)) {
                                         System.out.println("Introduzca su nueva contraseña:");
                                         password = sc.nextLine();
                                         tecnicoAuxiliar.setPasswordRegistrada(password);
+                                        System.out.println(ANSI_GREEN + "-------------------------------------------------");
+                                        System.out.println("Clave cambiada con éxito!!");
+                                        System.out.println("-------------------------------------------------\n" + ANSI_RESET);
                                     }
                                     break;
                                 case 6:
@@ -661,8 +567,9 @@ public class Main {
                                     cerrarSesionTecnico = true;
                                     break;
                                 default:
+                                    System.out.println(ANSI_RED + "---------------------------------------------------------------------");
                                     System.out.println("ERROR: Acción imposible!!");
-                                    System.out.println("---------------------------------------------------------------------");
+                                    System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                                     break;
                             }
 
@@ -679,15 +586,16 @@ public class Main {
                         password = sc.nextLine();
 
                         if (!administrador1.compruebaUsuario(usuario) || !administrador1.compruebaPassword(password)) {
-                            System.out.println("Usuario o contraseña incorrectos!! \n");
-                            System.out.println("---------------------------------------------------------------------");
+                            System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                            System.out.println("ERROR: Usuario o contraseña incorrectos!!");
+                            System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                         }
 
                     } while (!administrador1.compruebaUsuario(usuario) || !administrador1.compruebaPassword(password));
 
-                    //Menú administrador
+                    //MENÚ ADMINISTRADOR
                     do {
-                        System.out.println("    ☆ Bienvenidx " + administrador1.getNombre() + ", tiene usted perfil de administración ☆");
+                        System.out.println(ANSI_PURPLE + "    ☆ BIENVENIDX " + administrador1.getNombre() + ", TIENE USTED PERFIL DE ADMINISTRACIÓN ☆");
                         System.out.println("---------------------------------------------------------------------");
                         System.out.println("| Menú:                                                             |");
                         System.out.println("| 1.- Consultar todas las incidencias                               |");
@@ -700,185 +608,213 @@ public class Main {
                         System.out.println("| 8.- Cerrar sesión                                                 |");
                         System.out.println("| 9.- Cerrar el programa                                            |");
                         System.out.println("---------------------------------------------------------------------");
-                        System.out.println("Elija una opción: \s" );
+                        System.out.println("Elija una opción: \s" + ANSI_RESET);
                         opcionMenuAdministrador = Integer.parseInt(sc.nextLine());
 
                         switch (opcionMenuAdministrador) {
                             case 1:
                                 //CONSULTAR TODAS LAS INCIDENCIAS
-                                if (incidencia1.getUsuario() != null){
-                                    System.out.println(incidencia1.muestraIncidencia() + "\n");
-                                }
-                                if (incidencia2.getUsuario() != null){
-                                    System.out.println(incidencia2.muestraIncidencia() + "\n");
+                                System.out.println("INCIDENCIAS:");
+                                if (usuario1.getIncidencia1() != null) {
+                                    System.out.println(usuario1.getIncidencia1().muestraIncidencia() + "\n");
                                 }
 
-                                if (incidencia3.getUsuario() != null){
-                                    System.out.println(incidencia3.muestraIncidencia() + "\n");
+                                if (usuario1.getIncidencia2() != null) {
+                                    System.out.println(usuario1.getIncidencia2().muestraIncidencia() + "\n");
                                 }
 
-                                if (incidencia4.getUsuario() != null){
-                                    System.out.println(incidencia4.muestraIncidencia() + "\n");
+                                if (usuario1.getIncidencia3() != null) {
+                                    System.out.println(usuario1.getIncidencia3().muestraIncidencia() + "\n");
                                 }
 
-                                if (incidencia5.getUsuario() != null){
-                                    System.out.println(incidencia5.muestraIncidencia() + "\n");
+                                if (usuario2.getIncidencia1() != null) {
+                                    System.out.println(usuario2.getIncidencia1().muestraIncidencia() + "\n");
                                 }
 
-                                if (incidencia6.getUsuario() != null){
-                                    System.out.println(incidencia6.muestraIncidencia() + "\n");
+                                if (usuario2.getIncidencia2() != null) {
+                                    System.out.println(usuario2.getIncidencia2().muestraIncidencia() + "\n");
                                 }
 
-                                if (incidencia1.getUsuario() == null && incidencia2.getUsuario() == null && incidencia3.getUsuario() == null && incidencia4.getUsuario() == null && incidencia5.getUsuario() == null && incidencia6.getUsuario() == null){
-                                    System.out.println("---------------------------------------------------------------------");
-                                    System.out.println("No existen incidencias registradas!!");
-                                    System.out.println("---------------------------------------------------------------------");
+                                if (usuario2.getIncidencia3() != null) {
+                                    System.out.println(usuario2.getIncidencia3().muestraIncidencia() + "\n");
                                 }
 
+                                if (usuario1.getIncidencia1() == null && usuario1.getIncidencia2() == null && usuario1.getIncidencia3() == null && usuario2.getIncidencia1() == null && usuario2.getIncidencia2() == null && usuario2.getIncidencia3() == null) {
+                                    System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                                    System.out.println("ERROR: No existen incidencias abiertas registradas!!");
+                                    System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+                                }
                                 break;
                             case 2:
                                 //CONSULTAR TODOS LOS USUARIOS
+                                System.out.println("USUARIOS:");
                                 if (usuario1.getNombre() != null){
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                     System.out.println(usuario1.toString());
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                 }
 
                                 if (usuario2.getNombre() != null) {
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                     System.out.println(usuario2.toString());
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                 }
 
                                 if (usuario1.getNombre() == null && usuario2.getNombre() == null){
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
-                                    System.out.println("No existen usuarios registrados!!");
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
+                                    System.out.println(ANSI_RED + "----------------------------------------------------------------------");
+                                    System.out.println("ERROR: No existen usuarios registrados!!");
+                                    System.out.println("----------------------------------------------------------------------\n" + ANSI_RESET);
                                 }
                                 break;
                             case 3:
                                 //CONSULTAR TODOS LOS TÉCNICOS
+                                System.out.println("TÉCNICOS");
                                 if (tecnico1.getNombre() != null){
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                     System.out.println(tecnico1.toString());
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                 }
 
                                 if (tecnico2.getNombre() != null) {
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                     System.out.println(tecnico2.toString());
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                 }
 
                                 if (tecnico1.getNombre() == null && tecnico2.getNombre() == null){
-                                    System.out.println("---------------------------------------------------------------------");
-                                    System.out.println("No existen técnicos registrados!!");
-                                    System.out.println("---------------------------------------------------------------------");
+                                    System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                                    System.out.println("ERROR: No existen técnicos registrados!!");
+                                    System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                                 }
-
                                 break;
                             case 4:
                                 //ASIGNAR INCIDENCIA A TÉCNICO
-                                //TODO ASIGNAR INCIDENCIA A TÉCNICO (COMPROBACIÓN CON PARSEO NO FUNCIONA)
-                                System.out.println("INCIDENCIAS SIN ASIGNAR:");
+                                //Aquí se comprueba si hay usuarios
+                                Tecnico tecnicoElegido = null;
+                                Incidencia incidenciaElegida = null;
+                                boolean hayIncidencias = false;
 
-                                if (incidencia1.getUsuario() != null){
-                                    if (!incidencia1.isAsignada()){
-                                        System.out.println(incidencia1.muestraIncidencia());
-                                        parseoId = Integer.toString(incidencia1.getId());
-                                    }
-                                }
+                                if (usuario1.getUsuarioRegistrado() != null || usuario2.getUsuarioRegistrado() != null) {
 
-                                if (incidencia2.getUsuario() != null){
-                                    if (!incidencia2.isAsignada()){
-                                        System.out.println(incidencia2.muestraIncidencia());
-                                        parseoId = Integer.toString(incidencia2.getId());
-                                    }
-                                }
-
-                                if (incidencia3.getUsuario() != null){
-                                    if (!incidencia1.isAsignada()){
-                                        System.out.println(incidencia3.muestraIncidencia());
-                                        parseoId = Integer.toString(incidencia3.getId());
-                                    }
-                                }
-
-                                if (incidencia4.getUsuario() != null){
-                                    if (!incidencia1.isAsignada()){
-                                        System.out.println(incidencia4.muestraIncidencia());
-                                        parseoId = Integer.toString(incidencia4.getId());
-                                    }
-                                }
-
-                                if (incidencia5.getUsuario() != null){
-                                    if (!incidencia1.isAsignada()){
-                                        System.out.println(incidencia5.muestraIncidencia());
-                                        parseoId = Integer.toString(incidencia5.getId());
-                                    }
-                                }
-
-                                if (incidencia6.getUsuario() != null){
-                                    if (!incidencia1.isAsignada()){
-                                        System.out.println(incidencia6.muestraIncidencia());
-                                        parseoId = Integer.toString(incidencia6.getId());
-                                    }
-                                }
-                                System.out.println("Introduzca la id de la incidencia que quiere asignar:");
-                                idIncidencia = sc.nextLine();
-
-                                if (idIncidencia.equalsIgnoreCase(parseoId)){
-
-                                    System.out.println("TÉCNICOS:");
-
-                                    if (tecnico1.getNombre() != null){
-                                        System.out.println("--------------------------------------------------------------------------------------------------------");
-                                        System.out.println(tecnico1.toString());
-                                        System.out.println("--------------------------------------------------------------------------------------------------------");
-                                    }
-
-                                    if (tecnico2.getNombre() != null) {
-                                        System.out.println("--------------------------------------------------------------------------------------------------------");
-                                        System.out.println(tecnico2.toString());
-                                        System.out.println("--------------------------------------------------------------------------------------------------------");
-                                    }
-
-                                    if (tecnico1.getNombre() == null && tecnico2.getNombre() == null){
-                                        System.out.println("---------------------------------------------------------------------");
-                                        System.out.println("No existen técnicos registrados!!");
-                                        System.out.println("---------------------------------------------------------------------");
-                                    }
-
-                                    System.out.println("Introduzca el nombre de usuario del técnico al que quiere asignar la incidencia:");
-                                    idTecnico = sc.nextLine();
-
-                                    if (idTecnico.equalsIgnoreCase(tecnico1.getUsuarioRegistrado())){
-                                        if (contadorIncidenciasAsignadas < 2){
-
-                                        }else {
-                                            System.out.println("------------------------------------------------------------------");
-                                            System.out.println("No se pueden asignar más incidencias a este técnico!!");
-                                            System.out.println("------------------------------------------------------------------");
+                                    if (tecnico1.getNombre() == null && tecnico2.getNombre() == null) {
+                                        System.out.println(ANSI_RED + "----------------------------------------------------------------------------------------");
+                                        System.out.println("ERROR: No existen técnicos registrados, no se pueden asignar inicidencias!!");
+                                        System.out.println("----------------------------------------------------------------------------------------\n" + ANSI_RESET);
+                                    } else {
+                                        //Aquí se comprueba si hay incidencias asignadas a los usuarios
+                                        if (usuario1.getIncidencia1() != null) {
+                                            System.out.println(usuario1.getIncidencia1());
+                                            //La asigno a verdadero, ya que si hay incidencias
+                                            hayIncidencias = true;
                                         }
-                                    }else if (idTecnico.equalsIgnoreCase(tecnico2.getUsuarioRegistrado())){
-                                        if (contadorIncidenciasAsignadas < 2){
 
-                                        }else {
-                                            System.out.println("------------------------------------------------------------------");
-                                            System.out.println("No se pueden asignar más incidencias a este técnico!!");
-                                            System.out.println("------------------------------------------------------------------");
+                                        if (usuario1.getIncidencia2() != null) {
+                                            System.out.println(usuario1.getIncidencia2());
+                                            hayIncidencias = true;
                                         }
+
+                                        if (usuario1.getIncidencia3() != null) {
+                                            System.out.println(usuario1.getIncidencia3());
+                                            hayIncidencias = true;
+                                        }
+
+                                        if (usuario2.getIncidencia1() != null){
+                                            System.out.println(usuario2.getIncidencia1());
+                                            hayIncidencias = true;
+                                        }
+
+                                        if (usuario2.getIncidencia2() != null){
+                                            System.out.println(usuario2.getIncidencia2());
+                                            hayIncidencias = true;
+                                        }
+
+                                        if (usuario2.getIncidencia3() != null){
+                                            System.out.println(usuario2.getIncidencia3());
+                                            hayIncidencias = true;
+                                        }
+
+                                        //Aquí se comprueba si hay incidencias entra a realizar la operación de asignación
+                                        if (hayIncidencias) {
+                                            System.out.println("Introduzca la id de la incidencia que quiere asignar: ");
+                                            idIncidencia = sc.nextLine();
+
+                                            //Aquí se comprueba si las ID coinciden
+                                            if ( usuario1.getIncidencia1() != null && Integer.parseInt(idIncidencia) == usuario1.getIncidencia1().getId()) {
+                                                incidenciaElegida = usuario1.getIncidencia1();
+                                            } else if (usuario1.getIncidencia2() != null &&  Integer.parseInt(idIncidencia) == usuario1.getIncidencia2().getId()) {
+                                                incidenciaElegida = usuario1.getIncidencia2();
+                                            } else if (usuario1.getIncidencia3() != null &&  Integer.parseInt(idIncidencia) == usuario1.getIncidencia3().getId()) {
+                                                incidenciaElegida = usuario1.getIncidencia3();
+                                            } else if (usuario2.getIncidencia1() != null && Integer.parseInt(idIncidencia) == usuario2.getIncidencia1().getId()){
+                                                incidenciaElegida = usuario2.getIncidencia1();
+                                            } else if (usuario2.getIncidencia2() != null && Integer.parseInt(idIncidencia) == usuario2.getIncidencia2().getId()){
+                                                incidenciaElegida = usuario2.getIncidencia2();
+                                            } else if (usuario2.getIncidencia3() != null && Integer.parseInt(idIncidencia) == usuario2.getIncidencia3().getId()){
+                                                incidenciaElegida = usuario2.getIncidencia3();
+                                            } else {
+                                                System.out.println(ANSI_RED + "-------------------------------------------------------------------------------------------");
+                                                System.out.println("ERROR: La id introducida no coincide con la id de ninguna incidencia registrada!!");
+                                                System.out.println("-------------------------------------------------------------------------------------------\n" + ANSI_RESET);
+                                            }
+
+                                            //Aquí se comprueba que se haya escogido una incidencia correcta
+                                            if (incidenciaElegida != null) {
+                                                //Aquí se escoge un técnico
+                                                if (tecnico1.getNombre() != null) {
+                                                    System.out.println(tecnico1.toString());
+                                                }
+
+                                                if (tecnico2.getNombre() != null) {
+                                                    System.out.println(tecnico2.toString());
+                                                }
+
+                                                System.out.println("Introduzca la id del tecnico al que quiere asignar la incidencia: ");
+                                                idTecnico = sc.nextLine();
+
+                                                //Aquí se comprueba que las ID coinciden
+                                                if (tecnico1.getNombre() != null && Integer.parseInt(idTecnico) == tecnico1.getId()) {
+                                                    tecnicoElegido = tecnico1;
+                                                } else if ( tecnico2.getNombre() != null && Integer.parseInt(idTecnico) == tecnico2.getId()) {
+                                                    tecnicoElegido = tecnico2;
+                                                } else {
+                                                    System.out.println(ANSI_RED + "-------------------------------------------------------------------------------------------");
+                                                    System.out.println("ERROR: La id introducida no coincide con la id de ningun tecnico registrado!!");
+                                                    System.out.println("-------------------------------------------------------------------------------------------\n" + ANSI_RESET);
+                                                }
+
+                                                if (tecnicoElegido != null) {
+                                                    if (tecnicoElegido.getIncidencia1() == null) {
+                                                        tecnicoElegido.setIncidencia1(incidenciaElegida);
+                                                        incidenciaElegida.setAsignada(true);
+                                                        System.out.println(ANSI_GREEN + "-------------------------------------------");
+                                                        System.out.println("Incidencia asignada con éxito!!");
+                                                        System.out.println("-------------------------------------------\n" + ANSI_RESET);
+                                                    } else if (tecnicoElegido.getIncidencia2() == null) {
+                                                        tecnicoElegido.setIncidencia2(incidenciaElegida);
+                                                        incidenciaElegida.setAsignada(true);
+                                                        System.out.println(ANSI_GREEN + "-------------------------------------------");
+                                                        System.out.println("Incidencia asignada con éxito!!");
+                                                        System.out.println("-------------------------------------------\n" + ANSI_RESET);
+                                                    }
+
+                                                    if (tecnicoElegido.getIncidencia1() != null && tecnicoElegido.getIncidencia2() != null) {
+                                                        System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                                                        System.out.println("No se pueden asignar más incidencias a este técnico!!");
+                                                        System.out.println("---------------------------------------------------------------------" + ANSI_RESET);
+                                                    }
+                                                }else {
+                                                    System.out.println(ANSI_RED + "-------------------------------------------------------------------------------------------");
+                                                    System.out.println("ERROR: La id introducida no coincide con la id de ningun tecnico registrado!!");
+                                                    System.out.println("-------------------------------------------------------------------------------------------\n" + ANSI_RESET);
+                                                }
+                                            }
+                                        } else {
+                                            System.out.println(ANSI_RED + "----------------------------------------------------------------");
+                                            System.out.println("ERROR: No hay incidencias registradas!!");
+                                            System.out.println("----------------------------------------------------------------\n" + ANSI_RESET);
+                                        }
+
                                     }
 
-                                }else {
-                                    System.out.println("--------------------------------------------------------------------------");
-                                    System.out.println("ERROR: La id introducida no coincide con la id de ningún técnico!!");
-                                    System.out.println("--------------------------------------------------------------------------");
+                                } else {
+                                    //Aqui se cuentan los usuarios que no estan registrados
+                                    contadorUsuariosAdmin++;
                                 }
-
                                 break;
                             case 5:
                                 //DAR DE ALTA TÉCNICO
-                                //TODO ARREGLAR VOLVER A DAR DE ALTA UN TÉCNICO
                                 Tecnico tecnicoDeRegistro;
                                 if (contadorTecnicos < 2){
                                     do {
@@ -886,7 +822,7 @@ public class Main {
                                         nombreTecnico = sc.nextLine();
 
                                         System.out.println("Introduzca el usuario del técnico:");
-                                        usuarioTecnico = sc.nextLine();;
+                                        usuarioTecnico = sc.nextLine();
 
                                         System.out.println("Introduzca el correo electrónico del técnico:");
                                         correoTecnico = sc.nextLine();
@@ -900,15 +836,15 @@ public class Main {
                                         tecnicoDeRegistro = new Tecnico(nombreTecnico, usuarioTecnico, passwordTecnico, confirmacionPassword, correoTecnico);
 
                                         if (tecnicoDeRegistro.confirmaPassword(passwordTecnico, confirmacionPassword)) {
-                                            System.out.println("---------------------------------------------------------------------");
+                                            System.out.println(ANSI_GREEN + "---------------------------------------------------------------------");
                                             System.out.println("Técnico registrado con éxito!!");
-                                            System.out.println("---------------------------------------------------------------------");
+                                            System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                                         } else {
+                                            System.out.println(ANSI_RED + "---------------------------------------------------------------------");
                                             System.out.println("ERROR: Las contraseñas introducidas son diferentes!!");
-                                            System.out.println("---------------------------------------------------------------------");
+                                            System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                                         }
                                     }while (!tecnicoDeRegistro.confirmaPassword(passwordTecnico, confirmacionPassword));
-
 
                                     if (tecnico1.getNombre() == null){
                                         tecnico1 = tecnicoDeRegistro;
@@ -919,9 +855,9 @@ public class Main {
                                     }
 
                                 } else {
-                                    System.out.println("---------------------------------------------------------------------");
-                                    System.out.println("Se ha superado el máximo de técnicos registrados!!");
-                                    System.out.println("---------------------------------------------------------------------\n");
+                                    System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                                    System.out.println("ERROR: Se ha superado el máximo de técnicos registrados!!");
+                                    System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                                 }
                                 break;
                             case 6:
@@ -929,34 +865,33 @@ public class Main {
                                 System.out.println("TÉCNICOS REGISTRADOS:");
 
                                 if (tecnico1.getNombre() != null){
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                     System.out.println(tecnico1.toString());
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                 }
 
                                 if (tecnico2.getNombre() != null) {
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                     System.out.println(tecnico2.toString());
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                 }
 
                                 System.out.println("Introduzca el nombre de usuario del técnico que quiere borrar:");
                                 borrarTecnico = sc.nextLine();
 
+                                //Aquí se comprueba que el nombre de usuario sea igual
                                 if (borrarTecnico.equalsIgnoreCase(tecnico1.getUsuarioRegistrado())){
                                     tecnico1 = new Tecnico();
-                                    System.out.println("---------------------------------------------------------------------");
+                                    contadorTecnicos = 1;
+                                    System.out.println(ANSI_GREEN + "---------------------------------------------------------------------");
                                     System.out.println("Técnico borrado con éxito!!");
-                                    System.out.println("---------------------------------------------------------------------");
+                                    System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                                 } else if (borrarTecnico.equalsIgnoreCase(tecnico2.getUsuarioRegistrado())){
                                     tecnico2 = new Tecnico();
-                                    System.out.println("---------------------------------------------------------------------");
+                                    contadorTecnicos = 1;
+                                    System.out.println(ANSI_GREEN + "---------------------------------------------------------------------");
                                     System.out.println("Técnico borrado con éxito!!");
-                                    System.out.println("---------------------------------------------------------------------");
+                                    System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                                 } else {
-                                    System.out.println("--------------------------------------------------------------------------------------");
+                                    System.out.println(ANSI_RED + "--------------------------------------------------------------------------------------");
                                     System.out.println("ERROR: El nombre introducido no coincide con el de ningún técnico registrado!!");
-                                    System.out.println("--------------------------------------------------------------------------------------");
+                                    System.out.println("--------------------------------------------------------------------------------------\n" + ANSI_RESET);
                                 }
                                 break;
                             case 7:
@@ -964,34 +899,33 @@ public class Main {
                                 System.out.println("USUARIOS REGISTRADOS:");
 
                                 if (usuario1.getNombre() != null){
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                     System.out.println(usuario1.toString());
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                 }
 
                                 if (usuario2.getNombre() != null){
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                     System.out.println(usuario2.toString());
-                                    System.out.println("--------------------------------------------------------------------------------------------------------");
                                 }
 
                                 System.out.println("Introduzca el nombre de usuario del usuario que quiere borrar:");
                                 borrarUsuario = sc.nextLine();
 
+                                //Aquí se comprueba que el nombre de usuario sea igual
                                 if (borrarUsuario.equalsIgnoreCase(usuario1.getUsuarioRegistrado())){
                                     usuario1 = new Usuario();
-                                    System.out.println("---------------------------------------------------------------------");
+                                    contadorUsuarios = 1;
+                                    System.out.println(ANSI_GREEN + "---------------------------------------------------------------------");
                                     System.out.println("Usuario borrado con éxito!!");
-                                    System.out.println("---------------------------------------------------------------------");
+                                    System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                                 }else if (borrarUsuario.equalsIgnoreCase(usuario2.getUsuarioRegistrado())){
                                     usuario2 = new Usuario();
-                                    System.out.println("---------------------------------------------------------------------");
+                                    contadorUsuarios = 1;
+                                    System.out.println(ANSI_GREEN + "---------------------------------------------------------------------");
                                     System.out.println("Usuario borrado con éxito!!");
-                                    System.out.println("---------------------------------------------------------------------");
+                                    System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                                 } else {
-                                    System.out.println("---------------------------------------------------------------------");
+                                    System.out.println(ANSI_RED + "-----------------------------------------------------------------------------------------");
                                     System.out.println("ERROR: El nombre introducido no coincide con el de ningún técnico registrado!!");
-                                    System.out.println("---------------------------------------------------------------------");
+                                    System.out.println("-----------------------------------------------------------------------------------------\n" + ANSI_RESET);
                                 }
                                 break;
                             case 8:
@@ -999,12 +933,14 @@ public class Main {
                                 cerrarSesionAdministrador = true;
                                 break;
                             case 9:
+                                //CERRAR EL PROGRAMA
                                 cerrarSesionAdministrador = true;
                                 bandera1 = true;
                                 break;
                             default:
-                                System.out.println("Acción imposible");
-                                System.out.println("---------------------------------------------------------------------");
+                                System.out.println(ANSI_RED + "-----------------------------------------------");
+                                System.out.println("ERROR: Acción imposible!!");
+                                System.out.println("-----------------------------------------------\n" + ANSI_RESET);
                                 break;
                         }
 
@@ -1017,7 +953,17 @@ public class Main {
                     break;
             }
 
-
         }while (!bandera1);
     }
+
+    //Reset
+    public static final String ANSI_RESET = "\u001B[0m";
+
+    //Colores
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_CYAN = "\u001B[36m";
+    public static final String ANSI_PURPLE = "\u001B[35m";
+    public static final String ANSI_RED = "\u001B[31m";
 }

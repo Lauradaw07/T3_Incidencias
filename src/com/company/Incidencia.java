@@ -9,7 +9,8 @@ public class Incidencia {
     private int id;
     private Usuario usuario;
     private Tecnico tecnico;
-    private String comentario;
+    private String comentarioUsuario;
+    private String comentarioTecnico;
     private String prioridad;
     private Calendar fechaRegistro;
     private Calendar fechaActual;
@@ -43,12 +44,12 @@ public class Incidencia {
         this.tecnico = tecnico;
     }
 
-    public String getComentario() {
-        return comentario;
+    public String getComentarioUsuario() {
+        return comentarioUsuario;
     }
 
-    public void setComentario(String comentario) {
-        this.comentario = comentario;
+    public void setComentarioUsuario(String comentarioUsuario) {
+        this.comentarioUsuario = comentarioUsuario;
     }
 
     public String getPrioridad() {
@@ -99,6 +100,14 @@ public class Incidencia {
         this.estado = estado;
     }
 
+    public String getComentarioTecnico() {
+        return comentarioTecnico;
+    }
+
+    public void setComentarioTecnico(String comentarioTecnico) {
+        this.comentarioTecnico = comentarioTecnico;
+    }
+
     public boolean isAsignada() {
         return asignada;
     }
@@ -108,7 +117,7 @@ public class Incidencia {
     }
 
     //Constructores
-    public Incidencia(Usuario usuario, Tecnico tecnico,String comentario, String prioridad, boolean asignado,boolean resuelto) {
+    public Incidencia(Usuario usuario, Tecnico tecnico, String comentarioUsuario, String prioridad, boolean asignado, boolean resuelto, String comentarioTecnico) {
         Calendar calendar = Calendar.getInstance();
         this.id = (int) calendar.getTimeInMillis();
         this.fechaRegistro = Calendar.getInstance();
@@ -117,9 +126,10 @@ public class Incidencia {
         this.fechaActual.set(2022, Calendar.JANUARY, 20);
         this.usuario = usuario;
         this.tecnico = tecnico;
-        this.comentario = comentario;
+        this.comentarioUsuario = comentarioUsuario;
         this.prioridad = prioridad;
         this.resuelto = resuelto;
+        this.comentarioTecnico = comentarioTecnico;
     }
 
     public Incidencia () {
@@ -132,23 +142,24 @@ public class Incidencia {
         this.usuario = usuario;
     }
 
-    @Override
-    public String toString() {
-        return "Incidencia{" +
-                "id=" + id +
-                ", usuario=" + usuario.getUsuarioRegistrado() +
-                ", tecnico=" + tecnico.getUsuarioRegistrado() +
-                ", comentario='" + comentario + '\'' +
-                ", prioridad='" + prioridad + '\'' +
-                ", fechaRegistro=" + fechaRegistro +
-                ", fechaActual=" + fechaActual +
-                ", fechaImprimir='" + fechaImprimir + '\'' +
-                '}';
-    }
-
     //Métodos
     public int betweenDays() {
         return (int)( (fechaActual.getTime().getTime() - fechaRegistro.getTime().getTime()) / (1000 * 60 * 60 * 24));
+    }
+
+
+
+    @Override
+    public String toString() {
+        return "～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～" + "\n" +
+                "\s Incidencia con ID: " + id + "\n" +
+                "\s Abierta por: " + usuario.getUsuarioRegistrado() + "\n" +
+                "\s Han pasado " + betweenDays() + " días desde que se abrió" + "\n" +
+                "\s Comentarios: " + comentarioUsuario + "\n" +
+                "\s Prioridad: " + prioridad + "\n" +
+                "\s Fecha de creación: " + fechaImprimir + "\n" +
+                "\s Estado: " + (resuelto ? "RESUELTO" : "SIN RESOLVER") + "\n" +
+                "～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～";
     }
 
     public String muestraIncidencia (){
@@ -157,15 +168,17 @@ public class Incidencia {
         } else {
             estado = "SIN RESOLVER";
         }
-        return "～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～" + "\n" +
+
+        return "～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～" + "\n" +
                 "\s Incidencia con ID: " + id + "\n" +
                 "\s Abierta por: " + usuario.getUsuarioRegistrado() + "\n" +
                 "\s Han pasado " + betweenDays() + " días desde que se abrió" + "\n" +
-                "\s Comentarios: " + comentario + "\n" +
+                "\s Comentarios: " + comentarioUsuario + "\n" +
                 "\s Prioridad: " + prioridad + "\n" +
                 "\s Fecha de creación: " + fechaImprimir + "\n" +
                 "\s Estado: " + estado + "\n" +
-                "～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～";
+                "\s Comentario del técnico: " + comentarioTecnico + "\n" +
+                "～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～●～";
     }
 
 
