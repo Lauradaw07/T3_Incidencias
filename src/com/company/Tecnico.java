@@ -13,6 +13,8 @@ public class Tecnico {
     private String confirmacionPassword;
     private Incidencia incidencia1;
     private Incidencia incidencia2;
+    private Incidencia incidenciaResuelta1;
+    private Incidencia IncidenciaResuelta2;
 
     //Getters y setters
     public String getNombre() {
@@ -79,6 +81,22 @@ public class Tecnico {
         this.confirmacionPassword = confirmacionPassword;
     }
 
+    public Incidencia getIncidenciaResuelta1() {
+        return incidenciaResuelta1;
+    }
+
+    public void setIncidenciaResuelta1(Incidencia incidenciaResuelta1) {
+        this.incidenciaResuelta1 = incidenciaResuelta1;
+    }
+
+    public Incidencia getIncidenciaResuelta2() {
+        return IncidenciaResuelta2;
+    }
+
+    public void setIncidenciaResuelta2(Incidencia incidenciaResuelta2) {
+        IncidenciaResuelta2 = incidenciaResuelta2;
+    }
+
     //Constructores
     public Tecnico(String nombre, String usuarioRegistrado, String passwordRegistrada, String confirmacionPassword,String correo) {
         Calendar calendar = Calendar.getInstance();
@@ -105,7 +123,6 @@ public class Tecnico {
                 "\s\s" + "Correo electrónico: " + correo + "\n" +
                 "◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•◦•" + "\n";
     }
-
 
     //Métodos
     public boolean compruebaUsuario (String usuario){

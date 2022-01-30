@@ -3,8 +3,6 @@ import java.util.Scanner;
 
 public class Main {
 
-    final static Scanner s = new Scanner(System.in); // Variable es  global para todo el scope y es constante y propia de la clase
-
     //FUNCIONES:
 
     public static void pintaMenuPrincipal(){
@@ -65,42 +63,18 @@ public class Main {
         System.out.println("Elija una opción: \s" + ANSI_RESET);
     }
 
-    public static int pintaMenuAdministradorConOpcion (String nombre){
-        System.out.println(ANSI_PURPLE + "    ☆ BIENVENIDX " + nombre + ", TIENE USTED PERFIL DE ADMINISTRACIÓN ☆");
-        System.out.println("---------------------------------------------------------------------");
-        System.out.println("| Menú:                                                             |");
-        System.out.println("| 1.- Consultar todas las incidencias                               |");
-        System.out.println("| 2.- Consultar todos los usuarios                                  |");
-        System.out.println("| 3.- Consultar todos los técnicos                                  |");
-        System.out.println("| 4.- Asignar una incidencia a un técnico                           |");
-        System.out.println("| 5.- Dar de alta un técnico                                        |");
-        System.out.println("| 6.- Borrar un técnico                                             |");
-        System.out.println("| 7.- Borrar un usuario                                             |");
-        System.out.println("| 8.- Cerrar sesión                                                 |");
-        System.out.println("| 9.- Cerrar el programa                                            |");
-        System.out.println("---------------------------------------------------------------------");
-        System.out.println("Elija una opción: \s" + ANSI_RESET);
-        return Integer.parseInt(s.nextLine());
-    }
-
 
     public static void main(String[] args) {
         //Objetos
         //Usuarios
-        Usuario usuario1 = new Usuario();
 
-        Usuario usuario2 = new Usuario();
-
-        Usuario usuarioAuxiliar = null;
+        Usuario usuario1 = new Usuario();   Usuario usuario2 = new Usuario();   Usuario usuarioAuxiliar = null;
 
         //------------------------------------------------------------------------------------------------------------------------
 
         //Técnicos
-        Tecnico tecnico1 = new Tecnico();
 
-        Tecnico tecnico2 = new Tecnico();
-
-        Tecnico tecnicoAuxiliar = null;
+        Tecnico tecnico1 = new Tecnico();   Tecnico tecnico2 = new Tecnico();   Tecnico tecnicoAuxiliar = null;
 
         //-------------------------------------------------------------------------------------------------------------------------
 
@@ -110,11 +84,8 @@ public class Main {
         //--------------------------------------------------------------------------------------------------------------------------------------------------------
 
         //Incidencias
-        Incidencia incidencia1;
 
-        Incidencia incidencia2;
-
-        Incidencia incidencia3;
+        Incidencia incidencia1;     Incidencia incidencia2;     Incidencia incidencia3;
 
         //Variables
         String usuario, password, confirmacionPassword, nuevaPassword, borrarUsuario, borrarTecnico;
@@ -147,15 +118,6 @@ public class Main {
         int idCerrarIncidencia = 0;
 
         //--------------------------------------------------------------------------------------------------------------------------------------------------------
-        /*int opcionAdmin = -1;
-        do {
-            try {
-                opcionAdmin = pintaMenuAdministradorConOpcion("");
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-
-        } while (opcionAdmin < 0); */
 //TODO ANSI RED EN TODOS LOS TRY-CATCH
 
         do {
@@ -457,27 +419,25 @@ public class Main {
                                         break;
                                     case 3:
                                         //CONSULTAR INCIDENCIAS CERRADAS
-                                        if (usuarioAuxiliar.getIncidencia1() != null) {
-                                            if (usuarioAuxiliar.getIncidencia1().isResuelto()) {
-                                                System.out.println(usuarioAuxiliar.getIncidencia1().muestraIncidencia() + "\n");
-                                            }
+                                        if (tecnico1.getIncidenciaResuelta1() != null) {
+                                            System.out.println(tecnico1.getIncidenciaResuelta1().muestraIncidencia() + "\n");
                                         }
 
-                                        if (usuarioAuxiliar.getIncidencia2() != null) {
-                                            if (usuarioAuxiliar.getIncidencia2().isResuelto()) {
-                                                System.out.println(usuarioAuxiliar.getIncidencia2().muestraIncidencia() + "\n");
-                                            }
+                                        if (tecnico1.getIncidenciaResuelta2() != null) {
+                                            System.out.println(tecnico1.getIncidenciaResuelta2().muestraIncidencia() + "\n");
                                         }
 
-                                        if (usuarioAuxiliar.getIncidencia3() != null) {
-                                            if (usuarioAuxiliar.getIncidencia3().isResuelto()) {
-                                                System.out.println(usuarioAuxiliar.getIncidencia3().muestraIncidencia() + "\n");
-                                            }
+                                        if (tecnico2.getIncidenciaResuelta1() != null) {
+                                            System.out.println(tecnico2.getIncidenciaResuelta1().muestraIncidencia() + "\n");
                                         }
 
-                                        if (usuarioAuxiliar.getIncidencia1() == null && usuarioAuxiliar.getIncidencia2() == null && usuarioAuxiliar.getIncidencia3() == null) {
+                                        if (tecnico2.getIncidenciaResuelta2() != null) {
+                                            System.out.println(tecnico2.getIncidenciaResuelta2().muestraIncidencia() + "\n");
+                                        }
+
+                                        if (tecnico1.getIncidenciaResuelta1() == null && tecnico1.getIncidenciaResuelta2() == null && tecnico2.getIncidenciaResuelta1() == null && tecnico2.getIncidenciaResuelta2() == null) {
                                             System.out.println(ANSI_RED + "---------------------------------------------------------------------");
-                                            System.out.println("ERROR: No existen incidencias abiertas registradas!!");
+                                            System.out.println("ERROR: No existen incidencias cerradas registradas!!");
                                             System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                                         }
                                         break;
@@ -633,6 +593,11 @@ public class Main {
 
                                                 tecnicoAuxiliar.getIncidencia1().setComentarioTecnico(comentarioCerrarIncidencia);
 
+                                                //Incidencia que pasare como resuelta a la del tecnico
+                                                Incidencia incidenciaResuelta1 = tecnicoAuxiliar.getIncidencia1();
+
+                                                tecnicoAuxiliar.setIncidenciaResuelta1(incidenciaResuelta1);
+
                                                 tecnicoAuxiliar.setIncidencia1(null);
 
                                                 //Aquí se comprueba que las ID sean iguales
@@ -648,6 +613,10 @@ public class Main {
 
                                                 tecnicoAuxiliar.getIncidencia2().setComentarioTecnico(comentarioCerrarIncidencia);
 
+                                                Incidencia incidenciaResuelta2 = tecnicoAuxiliar.getIncidencia2();
+
+                                                tecnicoAuxiliar.setIncidenciaResuelta2(incidenciaResuelta2);
+
                                                 tecnicoAuxiliar.setIncidencia1(null);
                                             } else {
                                                 System.out.println(ANSI_RED + "-------------------------------------------------------------------------------------------");
@@ -658,19 +627,15 @@ public class Main {
                                         break;
                                     case 3: //TODO POR QUÉ COJONES VUELVE AL MENÚ PRINCIPAL????
                                         //CONSULTAR INCIDENCIAS RESUELTAS
-                                        if (tecnicoAuxiliar.getIncidencia1() != null){
-                                            if (tecnicoAuxiliar.getIncidencia1().isResuelto()){
-                                                System.out.println(tecnicoAuxiliar.getIncidencia1().muestraIncidencia() + "\n");
-                                            }
+                                        if (tecnicoAuxiliar.getIncidenciaResuelta1() != null){
+                                            System.out.println(tecnicoAuxiliar.getIncidenciaResuelta1().muestraIncidencia() + "\n");
                                         }
 
-                                        if (tecnicoAuxiliar.getIncidencia2() != null){
-                                            if (tecnicoAuxiliar.getIncidencia2().isResuelto()){
-                                                System.out.println(tecnicoAuxiliar.getIncidencia2().muestraIncidencia() + "\n");
-                                            }
+                                        if (tecnicoAuxiliar.getIncidenciaResuelta2() != null){
+                                            System.out.println(tecnicoAuxiliar.getIncidenciaResuelta2().muestraIncidencia() + "\n");
                                         }
 
-                                        if (tecnicoAuxiliar.getIncidencia1() == null && tecnicoAuxiliar.getIncidencia2() == null){
+                                        if (tecnicoAuxiliar.getIncidenciaResuelta1() == null && tecnicoAuxiliar.getIncidenciaResuelta2() == null){
                                             System.out.println(ANSI_RED + "\n--------------------------------------------------------------");
                                             System.out.println("ERROR: No existen incidencias resueltas registradas!!");
                                             System.out.println("--------------------------------------------------------------\n" + ANSI_RESET);
