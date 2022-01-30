@@ -1,4 +1,16 @@
 package com.company;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Properties;
 import java.util.Scanner;
 
 public class Main {
@@ -63,6 +75,58 @@ public class Main {
         System.out.println("Elija una opción: \s" + ANSI_RESET);
     }
 
+    private static void enviarConGMail(String destinatario, String asunto, String cuerpo) {
+        String remitente = "admiproyectoincidencias@gmail.com";
+        String clave = "Admin20175258";
+        // Propiedades de la conexión que se va a establecer con el servidor de correo SMTP
+        Properties props = System.getProperties();
+        props.put("mail.smtp.host", "smtp.gmail.com"); // Servidor SMTP de Google
+        props.put("mail.smtp.user", remitente);
+        props.put("mail.smtp.clave", clave);
+        props.put("mail.smtp.auth", "true"); // Usar autenticación mediante usuario y clave
+        props.put("mail.smtp.starttls.enable", "true"); // Conectar de manera segura
+        props.put("mail.smtp.port", "587"); // Puerto SMTP seguro de Google
+        // Se obtiene la sesión en el servidor de correo
+        Session session = Session.getDefaultInstance(props);
+        try {
+            // Creación del mensaje a enviar
+            MimeMessage message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(remitente));
+            message.setRecipients(Message.RecipientType.TO,
+                    InternetAddress.parse(destinatario));
+
+            message.setSubject(asunto);
+            //message.setText(cuerpo); // Para enviar texto plano
+            message.setContent(cuerpo, "text/html; charset=utf-8"); // Para enviar html
+            // Definición de los parámetros del protocolo de transporte
+            Transport transport = session.getTransport("smtp");
+            transport.connect("smtp.gmail.com", remitente, clave);
+            transport.sendMessage(message, message.getAllRecipients());
+            transport.close();
+        }
+        catch (MessagingException me) {
+            me.printStackTrace();
+        }
+    }
+
+    static boolean enviaMensajeTelegram (String mensaje) {
+        String direccion;
+        String fijo = "https://api.telegram.org/bot5202479427:AAEo2tSiarYI1hf6jjMFs4wlTOu67WA6R48/sendMessage?chat_id=1954372519&text=";
+        direccion = fijo + mensaje;
+        URL url;
+        boolean dev;
+        dev = false;
+
+        try {
+            url = new URL (direccion);
+            URLConnection con = url.openConnection();
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            dev = true;
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return dev;
+    }
 
     public static void main(String[] args) {
         //Objetos
@@ -117,6 +181,31 @@ public class Main {
         String comentarioCerrarIncidencia;
         int idCerrarIncidencia = 0;
 
+        Scanner sc = new Scanner(System.in);
+
+        //CORREO ADMIN
+        String destinatario = "laura.cabezas@fernando3martos.com"; // Destinatario del mensaje
+
+        String asunto = "Correo de prueba enviado desde Java";
+
+        String cuerpo = "<h1>Esta es una prueba de correo con html</h1>" +
+                "<p>hola <strong>Akame</strong> que pasa</p>";
+
+        enviarConGMail(destinatario, asunto, cuerpo);
+
+        //MENSAJE TELEGRAM
+
+        String mensaje;
+
+        System.out.println("Intoduzca un mensaje para Telegram:");
+        mensaje = sc.nextLine();
+
+        if (enviaMensajeTelegram(mensaje)) {
+            System.out.println("Mensaje enviado con éxito");
+        } else {
+            System.out.println("Fallo al enviar el mensaje");
+        }
+
         //--------------------------------------------------------------------------------------------------------------------------------------------------------
 //TODO ANSI RED EN TODOS LOS TRY-CATCH
 
@@ -127,7 +216,6 @@ public class Main {
             cerrarSesionAdministrador = false;
 
             //Menú principal
-            Scanner sc = new Scanner(System.in);
 
             pintaMenuPrincipal();
             try {
@@ -1087,6 +1175,9 @@ public class Main {
             }
 
         }while (!bandera1);
+
+
+
     }
 
     //Reset
