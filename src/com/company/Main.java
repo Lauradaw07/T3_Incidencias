@@ -75,6 +75,11 @@ public class Main {
         System.out.println("Elija una opción: \s" + ANSI_RESET);
     }
 
+    public static int generaID() {
+        int id = ((int)(Math.random() * 100000) + 1);
+        return id;
+    }
+
     private static void enviarConGMail(String destinatario, String asunto, String cuerpo) {
         String remitente = "admiproyectoincidencias@gmail.com";
         String clave = "Admin20175258";
@@ -367,7 +372,11 @@ public class Main {
                                                 //Aquí se registra la incidencia1
                                                 incidencia1 = new Incidencia(usuarioAuxiliar,null, comentario, prioridad, false,false, "No existen comentarios todavía");
 
+                                                int idIncidencia1 = generaID();
+
                                                 usuarioAuxiliar.setIncidencia1(incidencia1);
+
+                                                usuarioAuxiliar.getIncidencia1().setId(idIncidencia1);
 
                                                 contadorIncidencias++;
 
@@ -411,6 +420,15 @@ public class Main {
                                                 incidencia2 = new Incidencia(usuarioAuxiliar,null, comentario, prioridad,false, false, "No existen comentarios todavía");
 
                                                 usuarioAuxiliar.setIncidencia2(incidencia2);
+
+                                                int idIncidencia2 = generaID();
+
+                                                if (usuarioAuxiliar.getIncidencia1() == null) {
+                                                    usuarioAuxiliar.getIncidencia2().setId(idIncidencia2);
+                                                } else if (usuarioAuxiliar.getIncidencia1().getId() == idIncidencia2){
+                                                    idIncidencia2 = generaID();
+                                                    usuarioAuxiliar.getIncidencia2().setId(idIncidencia2);
+                                                }
 
                                                 contadorIncidencias++;
 
@@ -459,6 +477,15 @@ public class Main {
                                                 incidencia3 = new Incidencia(usuarioAuxiliar, null,comentario, prioridad, false,false, "No existen comentarios todavía");
 
                                                 usuarioAuxiliar.setIncidencia3(incidencia3);
+
+                                                int idIncidencia3 = generaID();
+
+                                                if (usuarioAuxiliar.getIncidencia1() == null && usuarioAuxiliar.getIncidencia2() == null) {
+                                                    usuarioAuxiliar.getIncidencia3().setId(idIncidencia3);
+                                                } else if (usuarioAuxiliar.getIncidencia1().getId() == idIncidencia3 || usuarioAuxiliar.getIncidencia2().getId() == idIncidencia3){
+                                                    idIncidencia3 = generaID();
+                                                    usuarioAuxiliar.getIncidencia3().setId(idIncidencia3);
+                                                }
 
                                                 contadorIncidencias++;
 
