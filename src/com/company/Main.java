@@ -1,137 +1,7 @@
 package com.company;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Properties;
 import java.util.Scanner;
 
 public class Main {
-
-    //FUNCIONES:
-
-    public static void pintaMenuPrincipal(){
-        System.out.println(ANSI_BLUE + "---------------------------------------------------------------------");
-        System.out.println("|          BIENVENIDX AL SISTEMA DE GESTIÓN DE INCIDENCIAS          |");
-        System.out.println("---------------------------------------------------------------------");
-        System.out.println("| 1.- Registrarse                                                   |");
-        System.out.println("| 2.- Iniciar sesión como usuario                                   |");
-        System.out.println("| 3.- Iniciar sesión como técnico                                   |");
-        System.out.println("| 4.- Iniciar sesión como administrador                             |");
-        System.out.println("| 5.- Cerrar el programa                                            |");
-        System.out.println("---------------------------------------------------------------------");
-        System.out.println("Elija una opción: \s" + ANSI_RESET);
-    }
-
-    public static void pintaMenuUsuario(String nombre){
-        System.out.println(ANSI_YELLOW + "     ☆ BIENVENIDX " + nombre + ", TIENE USTED PERFIL DE USUARIO NORMAL ☆");
-        System.out.println("---------------------------------------------------------------------");
-        System.out.println("| Menú:                                                             |");
-        System.out.println("| 1.- Registrar nueva incidencia                                    |");
-        System.out.println("| 2.- Consultar mis incidencias abiertas                            |");
-        System.out.println("| 3.- Consultar mis incidencias cerradas                            |");
-        System.out.println("| 4.- Mostrar mi perfil                                             |");
-        System.out.println("| 5.- Cambiar clave de acceso                                       |");
-        System.out.println("| 6.- Cerrar sesión                                                 |");
-        System.out.println("---------------------------------------------------------------------");
-        System.out.println("Elija una opción: \s" + ANSI_RESET);
-    }
-
-    public static void pintaMenuTecnico (String nombre){
-        System.out.println(ANSI_CYAN + "    ☆ BIENVENIDX " + nombre + ", TIENE USTED PERFIL DE TÉCNICO ☆");
-        System.out.println("---------------------------------------------------------------------");
-        System.out.println("| Menú:                                                             |");
-        System.out.println("| 1.- Consultar las incidencias que tengo asignadas                 |");
-        System.out.println("| 2.- Marcar una incidencia como cerrada                            |");
-        System.out.println("| 3.- Consultar las incidencias que he resuelto                     |");
-        System.out.println("| 4.- Mostrar perfil                                                |");
-        System.out.println("| 5.- Cambiar clave de acceso                                       |");
-        System.out.println("| 6.- Cerrar sesión                                                 |");
-        System.out.println("---------------------------------------------------------------------");
-        System.out.println("Elija una opción: \s" + ANSI_RESET);
-    }
-
-    public static void pintaMenuAdministrador (String nombre){
-        System.out.println(ANSI_PURPLE + "    ☆ BIENVENIDX " + nombre + ", TIENE USTED PERFIL DE ADMINISTRACIÓN ☆");
-        System.out.println("---------------------------------------------------------------------");
-        System.out.println("| Menú:                                                             |");
-        System.out.println("| 1.- Consultar todas las incidencias                               |");
-        System.out.println("| 2.- Consultar todos los usuarios                                  |");
-        System.out.println("| 3.- Consultar todos los técnicos                                  |");
-        System.out.println("| 4.- Asignar una incidencia a un técnico                           |");
-        System.out.println("| 5.- Dar de alta un técnico                                        |");
-        System.out.println("| 6.- Borrar un técnico                                             |");
-        System.out.println("| 7.- Borrar un usuario                                             |");
-        System.out.println("| 8.- Cerrar sesión                                                 |");
-        System.out.println("| 9.- Cerrar el programa                                            |");
-        System.out.println("---------------------------------------------------------------------");
-        System.out.println("Elija una opción: \s" + ANSI_RESET);
-    }
-
-    public static int generaID() {
-        int id = ((int)(Math.random() * 100000) + 1);
-        return id;
-    }
-
-    private static void enviarConGMail(String destinatario, String asunto, String cuerpo) {
-        String remitente = "admiproyectoincidencias@gmail.com";
-        String clave = "Admin20175258";
-        // Propiedades de la conexión que se va a establecer con el servidor de correo SMTP
-        Properties props = System.getProperties();
-        props.put("mail.smtp.host", "smtp.gmail.com"); // Servidor SMTP de Google
-        props.put("mail.smtp.user", remitente);
-        props.put("mail.smtp.clave", clave);
-        props.put("mail.smtp.auth", "true"); // Usar autenticación mediante usuario y clave
-        props.put("mail.smtp.starttls.enable", "true"); // Conectar de manera segura
-        props.put("mail.smtp.port", "587"); // Puerto SMTP seguro de Google
-        // Se obtiene la sesión en el servidor de correo
-        Session session = Session.getDefaultInstance(props);
-        try {
-            // Creación del mensaje a enviar
-            MimeMessage message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(remitente));
-            message.setRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse(destinatario));
-
-            message.setSubject(asunto);
-            //message.setText(cuerpo); // Para enviar texto plano
-            message.setContent(cuerpo, "text/html; charset=utf-8"); // Para enviar html
-            // Definición de los parámetros del protocolo de transporte
-            Transport transport = session.getTransport("smtp");
-            transport.connect("smtp.gmail.com", remitente, clave);
-            transport.sendMessage(message, message.getAllRecipients());
-            transport.close();
-        }
-        catch (MessagingException me) {
-            me.printStackTrace();
-        }
-    }
-
-    static boolean enviaMensajeTelegram (String mensaje) {
-        String direccion;
-        String fijo = "https://api.telegram.org/bot5202479427:AAEo2tSiarYI1hf6jjMFs4wlTOu67WA6R48/sendMessage?chat_id=1954372519&text=";
-        direccion = fijo + mensaje;
-        URL url;
-        boolean dev;
-        dev = false;
-
-        try {
-            url = new URL (direccion);
-            URLConnection con = url.openConnection();
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            dev = true;
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-        return dev;
-    }
 
     public static void main(String[] args) {
         //Objetos
@@ -189,27 +59,27 @@ public class Main {
         Scanner sc = new Scanner(System.in);
 
         //CORREO ADMIN
-        String destinatario = "laura.cabezas@fernando3martos.com"; // Destinatario del mensaje
+        /*String destinatario = "laura.cabezas@fernando3martos.com"; // Destinatario del mensaje
 
         String asunto = "Correo de prueba enviado desde Java";
 
-        String cuerpo = "<h1>Esta es una prueba de correo con html</h1>" +
-                "<p>hola <strong>Akame</strong> que pasa</p>";
+        String cuerpo = "<h1>Prueba correo nº 50000</h1>" +
+                "<p>hola <strong>VALKIRIA</strong> que pasa</p>";
 
-        enviarConGMail(destinatario, asunto, cuerpo);
+        Funciones.enviarConGMail(destinatario, asunto, cuerpo);*/
 
         //MENSAJE TELEGRAM
 
-        String mensaje;
+        /*String mensaje;
 
         System.out.println("Intoduzca un mensaje para Telegram:");
         mensaje = sc.nextLine();
 
-        if (enviaMensajeTelegram(mensaje)) {
+        if (Funciones.enviaMensajeTelegram(mensaje)) {
             System.out.println("Mensaje enviado con éxito");
         } else {
             System.out.println("Fallo al enviar el mensaje");
-        }
+        }*/
 
         //--------------------------------------------------------------------------------------------------------------------------------------------------------
 //TODO ANSI RED EN TODOS LOS TRY-CATCH
@@ -222,7 +92,7 @@ public class Main {
 
             //Menú principal
 
-            pintaMenuPrincipal();
+            Funciones.pintaMenuPrincipal();
             try {
                 opcionMenuPrincipal = Integer.parseInt(sc.nextLine());
             } catch (NumberFormatException e) {
@@ -242,6 +112,8 @@ public class Main {
 
                         System.out.println("Introduzca su nombre de usuario:");
                         usuarioUsuario = sc.nextLine();
+
+                        //TODO EXPRESIÓN REGULAR Y COMPROBAR QUE LOS CORREOS NO SE REPITEN
 
                         System.out.println("Introduzca su correo electrónico:");
                         correoUsuario = sc.nextLine();
@@ -325,7 +197,7 @@ public class Main {
                             //Menú usuario //TODO USUARIO
                             do {
 
-                                pintaMenuUsuario(usuarioAuxiliar.getNombre());
+                                Funciones.pintaMenuUsuario(usuarioAuxiliar.getNombre());
                                 try {
                                     opcionMenuUsuario = Integer.parseInt(sc.nextLine());
                                 } catch (NumberFormatException e) {
@@ -372,7 +244,7 @@ public class Main {
                                                 //Aquí se registra la incidencia1
                                                 incidencia1 = new Incidencia(usuarioAuxiliar,null, comentario, prioridad, false,false, "No existen comentarios todavía");
 
-                                                int idIncidencia1 = generaID();
+                                                int idIncidencia1 = Funciones.generaID();
 
                                                 usuarioAuxiliar.setIncidencia1(incidencia1);
 
@@ -421,12 +293,12 @@ public class Main {
 
                                                 usuarioAuxiliar.setIncidencia2(incidencia2);
 
-                                                int idIncidencia2 = generaID();
+                                                int idIncidencia2 = Funciones.generaID();
 
                                                 if (usuarioAuxiliar.getIncidencia1() == null) {
                                                     usuarioAuxiliar.getIncidencia2().setId(idIncidencia2);
                                                 } else if (usuarioAuxiliar.getIncidencia1().getId() == idIncidencia2){
-                                                    idIncidencia2 = generaID();
+                                                    idIncidencia2 = Funciones.generaID();
                                                     usuarioAuxiliar.getIncidencia2().setId(idIncidencia2);
                                                 }
 
@@ -478,12 +350,12 @@ public class Main {
 
                                                 usuarioAuxiliar.setIncidencia3(incidencia3);
 
-                                                int idIncidencia3 = generaID();
+                                                int idIncidencia3 = Funciones.generaID();
 
                                                 if (usuarioAuxiliar.getIncidencia1() == null && usuarioAuxiliar.getIncidencia2() == null) {
                                                     usuarioAuxiliar.getIncidencia3().setId(idIncidencia3);
                                                 } else if (usuarioAuxiliar.getIncidencia1().getId() == idIncidencia3 || usuarioAuxiliar.getIncidencia2().getId() == idIncidencia3){
-                                                    idIncidencia3 = generaID();
+                                                    idIncidencia3 = Funciones.generaID();
                                                     usuarioAuxiliar.getIncidencia3().setId(idIncidencia3);
                                                 }
 
@@ -630,7 +502,7 @@ public class Main {
                         if (tecnicoAuxiliar != null) {
                             //MENÚ TÉCNICO //TODO TÉCNICO
                             do {
-                                pintaMenuTecnico(tecnicoAuxiliar.getNombre());
+                                Funciones.pintaMenuTecnico(tecnicoAuxiliar.getNombre());
                                 try {
                                     opcionMenuTecnico = Integer.parseInt(sc.nextLine());
                                 } catch (NumberFormatException e) {
@@ -820,7 +692,7 @@ public class Main {
 
                     //MENÚ ADMINISTRADOR
                     do {//TODO ADMINISTRADOR
-                        pintaMenuAdministrador(administrador1.getNombre());
+                        Funciones.pintaMenuAdministrador(administrador1.getNombre());
 
                         try {
                             opcionMenuAdministrador = Integer.parseInt(sc.nextLine());
