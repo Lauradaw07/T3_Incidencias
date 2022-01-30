@@ -80,10 +80,10 @@ public class Tecnico {
     }
 
     //Constructores
-
     public Tecnico(String nombre, String usuarioRegistrado, String passwordRegistrada, String confirmacionPassword,String correo) {
         Calendar calendar = Calendar.getInstance();
-        this.id = (int) calendar.getTimeInMillis();
+        int idTecnico = ((int) (Math.random() * 3000000) + 2000000);
+        this.id = idTecnico;
         this.nombre = nombre;
         this.usuarioRegistrado = usuarioRegistrado;
         this.passwordRegistrada = passwordRegistrada;

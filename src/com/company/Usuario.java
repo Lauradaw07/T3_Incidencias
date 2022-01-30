@@ -10,7 +10,7 @@ public class Usuario {
     private String correo;
     private String passwordRegistrada;
     private String confirmacionPassword;
-    private String telefono;
+    private int telefono;
     private Incidencia incidencia1;
     private Incidencia incidencia2;
     private Incidencia incidencia3;
@@ -72,11 +72,11 @@ public class Usuario {
         this.dni = dni;
     }
 
-    public String getTelefono() {
+    public int getTelefono() {
         return telefono;
     }
 
-    public void setTelefono(String telefono) {
+    public void setTelefono(int telefono) {
         this.telefono = telefono;
     }
 
@@ -98,7 +98,7 @@ public class Usuario {
 
     //Constructores
 
-    public Usuario(String nombre, String dni, String usuarioRegistrado, String correo, String passwordRegistrada, String confirmacionPassword,String telefono) {
+    public Usuario(String nombre, String dni, String usuarioRegistrado, String correo, String passwordRegistrada, String confirmacionPassword,int telefono) {
         this.nombre = nombre;
         this.dni = dni;
         this.usuarioRegistrado = usuarioRegistrado;
