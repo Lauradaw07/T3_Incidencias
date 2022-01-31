@@ -97,9 +97,9 @@ public class Main {
             try {
                 opcionMenuPrincipal = Integer.parseInt(sc.nextLine());
             } catch (NumberFormatException e) {
-                System.out.println("--------------------------------------------------------------------------");
+                System.out.println(ANSI_RED + "\n--------------------------------------------------------------------------");
                 System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción");
-                System.out.println("--------------------------------------------------------------------------");
+                System.out.println("--------------------------------------------------------------------------\n" + ANSI_RESET);
             }
 
             switch (opcionMenuPrincipal){
@@ -156,7 +156,7 @@ public class Main {
                                 System.out.println("Introduzca su número de teléfono:");
                                 telefonoUsuario = Integer.parseInt(sc.nextLine());
                             } catch (NumberFormatException e) {
-                                System.out.println(ANSI_RED + "------------------------------------------------------");
+                                System.out.println(ANSI_RED + "\n------------------------------------------------------");
                                 System.out.println("ERROR: El número de teléfono debe ser un número!!");
                                 System.out.println("------------------------------------------------------\n" + ANSI_RESET);
                             }
@@ -216,9 +216,9 @@ public class Main {
                                 try {
                                     opcionMenuUsuario = Integer.parseInt(sc.nextLine());
                                 } catch (NumberFormatException e) {
-                                    System.out.println("------------------------------------------------------------");
-                                    System.out.println("Por favor, introduzca un número para seleccionar una opción");
-                                    System.out.println("------------------------------------------------------------");
+                                    System.out.println(ANSI_RED + "\n-----------------------------------------------------------------------------");
+                                    System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción");
+                                    System.out.println("-----------------------------------------------------------------------------\n" + ANSI_RESET);
                                 }
 
                                 switch (opcionMenuUsuario) {
@@ -238,9 +238,9 @@ public class Main {
                                                         System.out.println("3.- Alta");
                                                         opcionMenuPrioridadIncidencias = Integer.parseInt(sc.nextLine());
                                                     } catch (NumberFormatException e) {
-                                                        System.out.println("\n--------------------------------------------------------------------------");
+                                                        System.out.println(ANSI_RED + "\n--------------------------------------------------------------------------");
                                                         System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción!!");
-                                                        System.out.println("--------------------------------------------------------------------------\n");
+                                                        System.out.println("--------------------------------------------------------------------------\n" + ANSI_RESET);
                                                     }
                                                 } while (opcionMenuPrioridadIncidencias == 0);
 
@@ -285,9 +285,9 @@ public class Main {
                                                         System.out.println("3.- Alta");
                                                         opcionMenuPrioridadIncidencias = Integer.parseInt(sc.nextLine());
                                                     } catch (NumberFormatException e) {
-                                                        System.out.println("\n--------------------------------------------------------------------------");
+                                                        System.out.println(ANSI_RED + "\n--------------------------------------------------------------------------");
                                                         System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción!!");
-                                                        System.out.println("--------------------------------------------------------------------------\n");
+                                                        System.out.println("--------------------------------------------------------------------------\n" + ANSI_RESET);
                                                     }
                                                 }while (opcionMenuPrioridadIncidencias == 0);
 
@@ -337,9 +337,9 @@ public class Main {
                                                         System.out.println("3.- Alta");
                                                         opcionMenuPrioridadIncidencias = Integer.parseInt(sc.nextLine());
                                                     } catch (NumberFormatException e) {
-                                                        System.out.println("\n--------------------------------------------------------------------------");
+                                                        System.out.println(ANSI_RED + "\n--------------------------------------------------------------------------");
                                                         System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción!!");
-                                                        System.out.println("--------------------------------------------------------------------------\n");
+                                                        System.out.println("--------------------------------------------------------------------------\n" + ANSI_RESET);
                                                     }
                                                 } while (opcionMenuPrioridadIncidencias == 0);
 
@@ -521,9 +521,9 @@ public class Main {
                                 try {
                                     opcionMenuTecnico = Integer.parseInt(sc.nextLine());
                                 } catch (NumberFormatException e) {
-                                    System.out.println("\n------------------------------------------------------------");
-                                    System.out.println("Por favor, introduzca un número para seleccionar una opción");
-                                    System.out.println("------------------------------------------------------------\n");
+                                    System.out.println(ANSI_RED + "\n-----------------------------------------------------------------------");
+                                    System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción");
+                                    System.out.println("-----------------------------------------------------------------------\n" + ANSI_RESET);
                                 }
 
                                 switch (opcionMenuTecnico) {
@@ -578,9 +578,9 @@ public class Main {
                                                     System.out.println("Introduzca la id de la incidencia que quiere cerrar:");
                                                     idCerrarIncidencia = Integer.parseInt(sc.nextLine());
                                                 } catch (NumberFormatException e) {
-                                                    System.out.println("\n----------------------------------------");
+                                                    System.out.println(ANSI_RED + "\n----------------------------------------");
                                                     System.out.println("ERROR: La id debe ser un número!!");
-                                                    System.out.println("----------------------------------------\n");
+                                                    System.out.println("----------------------------------------\n" + ANSI_RESET);
                                                 }
                                             } while (idCerrarIncidencia == 0);
 
@@ -712,9 +712,9 @@ public class Main {
                         try {
                             opcionMenuAdministrador = Integer.parseInt(sc.nextLine());
                         } catch (NumberFormatException e) {
-                            System.out.println("--------------------------------------------------------------------------");
+                            System.out.println(ANSI_RED + "\n--------------------------------------------------------------------------");
                             System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción");
-                            System.out.println("--------------------------------------------------------------------------");
+                            System.out.println("--------------------------------------------------------------------------\n" + ANSI_RESET);
                         }
 
                         switch (opcionMenuAdministrador) {
@@ -851,9 +851,9 @@ public class Main {
                                                     System.out.println("Introduzca la id de la incidencia que quiere asignar: ");
                                                     idIncidencia = Integer.parseInt(sc.nextLine());
                                                 } catch (NumberFormatException e) {
-                                                    System.out.println("\n----------------------------------------");
+                                                    System.out.println(ANSI_RED + "\n----------------------------------------");
                                                     System.out.println("ERROR: La id debe ser un número!!");
-                                                    System.out.println("----------------------------------------\n");
+                                                    System.out.println("----------------------------------------\n" + ANSI_RESET);
                                                 }
                                             } while (idIncidencia == 0);
 
@@ -892,9 +892,9 @@ public class Main {
                                                         System.out.println("Introduzca la id del tecnico al que quiere asignar la incidencia: ");
                                                         idTecnico = Integer.parseInt(sc.nextLine());
                                                     } catch (NumberFormatException e) {
-                                                        System.out.println("\n----------------------------------------");
+                                                        System.out.println(ANSI_RED + "\n----------------------------------------");
                                                         System.out.println("ERROR: La id debe ser un número!!");
-                                                        System.out.println("----------------------------------------\n");
+                                                        System.out.println("----------------------------------------\n" + ANSI_RESET);
                                                     }
                                                 } while (idTecnico == 0);
 
