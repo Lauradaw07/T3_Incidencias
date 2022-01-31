@@ -14,6 +14,9 @@ public class Usuario {
     private Incidencia incidencia1;
     private Incidencia incidencia2;
     private Incidencia incidencia3;
+    private int tokenUsuario1;
+    private int tokenUsuario2;
+    private boolean validado;
 
     //Getters y setters
     public String getNombre() {
@@ -96,6 +99,30 @@ public class Usuario {
         this.confirmacionPassword = confirmacionPassword;
     }
 
+    public int getTokenUsuario1() {
+        return tokenUsuario1;
+    }
+
+    public void setTokenUsuario1(int tokenUsuario1) {
+        this.tokenUsuario1 = tokenUsuario1;
+    }
+
+    public int getTokenUsuario2() {
+        return tokenUsuario2;
+    }
+
+    public void setTokenUsuario2(int tokenUsuario2) {
+        this.tokenUsuario2 = tokenUsuario2;
+    }
+
+    public boolean isValidado() {
+        return validado;
+    }
+
+    public void setValidado(boolean validado) {
+        this.validado = validado;
+    }
+
     //Constructores
 
     public Usuario(String nombre, String dni, String usuarioRegistrado, String correo, String passwordRegistrada, String confirmacionPassword,int telefono) {
@@ -150,5 +177,7 @@ public class Usuario {
             return false;
         }
     }
+
+
 
 }

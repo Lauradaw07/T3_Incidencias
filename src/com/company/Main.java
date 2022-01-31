@@ -40,8 +40,11 @@ public class Main {
 
         //Variables registro usuario
         String nombreUsuario, usuarioUsuario, passwordUsuario, correoUsuario, dniUsuario;
-        int telefonoUsuario = 0;
-        boolean correoigual = false;
+        int telefonoUsuario = 0, tokenUsuario1 = 0, tokenUsuario2 = 0;
+        boolean correoigual = false, validado = false;
+
+        //Variables inicio de sesión usuarios
+        int codigo;
 
         //Variables registro técnico
 
@@ -96,9 +99,9 @@ public class Main {
             try {
                 opcionMenuPrincipal = Integer.parseInt(sc.nextLine());
             } catch (NumberFormatException e) {
-                System.out.println("--------------------------------------------------------------------------");
+                System.out.println(ANSI_RED + "\n--------------------------------------------------------------------------");
                 System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción");
-                System.out.println("--------------------------------------------------------------------------");
+                System.out.println("--------------------------------------------------------------------------\n" + ANSI_RESET);
             }
 
             switch (opcionMenuPrincipal){
@@ -155,7 +158,7 @@ public class Main {
                                 System.out.println("Introduzca su número de teléfono:");
                                 telefonoUsuario = Integer.parseInt(sc.nextLine());
                             } catch (NumberFormatException e) {
-                                System.out.println(ANSI_RED + "------------------------------------------------------");
+                                System.out.println(ANSI_RED + "\n------------------------------------------------------");
                                 System.out.println("ERROR: El número de teléfono debe ser un número!!");
                                 System.out.println("------------------------------------------------------\n" + ANSI_RESET);
                             }
@@ -172,7 +175,11 @@ public class Main {
                             //TODO TOKEN
                             //Aquí se crea el token y se envía al correo del usuario1
 
-                            int tokenUsuario1 = ((int) (Math.random() * 9000) + 1000);
+                            tokenUsuario1 = ((int) (Math.random() * 9000) + 1000);
+
+                            usuario1.setTokenUsuario1(tokenUsuario1);
+
+                            usuario1.setValidado(false);
 
                             String destinatario = usuario1.getCorreo(); // Destinatario del mensaje
 
@@ -188,10 +195,16 @@ public class Main {
                             //TODO TOKEN
                             usuario2 = usuarioDeRegistro;
 
-                            //Aquí se crea el token y se envía al correo del usuario2
-                            int tokenUsuario2 = ((int) (Math.random() * 9000) + 1000);
+                            //TODO COMPROBAR QUE EL TOKEN DEL USUARIO1 NO SEA IGUAL AL DEL USUARIO2, ANTES DE SETEAR EL TOKEN DEL USUARIO2
 
-                            String destinatario = usuario1.getCorreo(); // Destinatario del mensaje
+                            //Aquí se crea el token y se envía al correo del usuario2
+                            tokenUsuario2 = ((int) (Math.random() * 9000) + 1000);
+
+                            usuario2.setTokenUsuario2(tokenUsuario2);
+
+                            usuario2.setValidado(false);
+
+                            String destinatario = usuario2.getCorreo(); // Destinatario del mensaje
 
                             String asunto = "Validación de tu cuenta";
 
@@ -211,29 +224,59 @@ public class Main {
                 case 2:
                     //INICIAR SESIÓN COMO USUARIO
                     if (usuario1.getNombre() != null || usuario2.getNombre() != null){
-                        do {
-                            System.out.println("Introduzca su nombre de usuario:");
-                            usuario = sc.nextLine();
+                        //TODO CONTROLAR QUE LOS USUARIOS SOLO PUEDAN ENTRAR CON SU TOKEN Y NO CON EL DE OTRA CUENTA
 
-                            System.out.println("Introduzca su contraseña:");
-                            password = sc.nextLine();
+                        if (usuario1.isValidado() == false || usuario2.isValidado() == false){
+                            while (!validado){
+                                System.out.println("Revise su correo para obtener su código de validación.");
+                                System.out.println("Introduzca el código:");
+                                codigo = Integer.parseInt(sc.nextLine());
 
-                            //Aquí se comprueba que la contraseña introducida y la registrada son iguales
-                            if (usuario1.compruebaUsuario(usuario) && usuario1.compruebaPassword(password)) {
-                                usuarioAuxiliar = usuario1;
+                                if (codigo == usuario1.getTokenUsuario1()) {
+                                    validado = true;
+                                } else if (codigo == usuario2.getTokenUsuario2()) {
+                                    validado = true;
+                                }
+
+                                if (codigo != usuario1.getTokenUsuario1() && codigo != usuario2.getTokenUsuario2()) {
+                                    System.out.println(ANSI_RED + "\n--------------------------------------------------------------------");
+                                    System.out.println("ERROR: El código de validación no pertenece a esta cuenta!!");
+                                    System.out.println("--------------------------------------------------------------------\n" + ANSI_RESET);
+                                }
+
                             }
 
-                            if (usuario2.compruebaUsuario(usuario) && usuario2.compruebaPassword(password)) {
-                                usuarioAuxiliar = usuario2;
-                            }
+                            do {
+                                System.out.println("Introduzca su nombre de usuario:");
+                                usuario = sc.nextLine();
 
-                            if ((!usuario1.compruebaUsuario(usuario) || !usuario1.compruebaPassword(password)) && (!usuario2.compruebaUsuario(usuario) || !usuario2.compruebaPassword(password))) {
-                                System.out.println(ANSI_RED + "---------------------------------------------------------------------");
-                                System.out.println("ERROR: Usuario o contraseña incorrectos!!");
-                                System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
-                            }
+                                System.out.println("Introduzca su contraseña:");
+                                password = sc.nextLine();
 
-                        } while (!usuario1.compruebaUsuario(usuario) && !usuario1.compruebaPassword(password) && !usuario2.compruebaUsuario(usuario) && !usuario2.compruebaPassword(password));
+                                //Aquí se comprueba que la contraseña introducida y la registrada son iguales
+                                if (usuario1.compruebaUsuario(usuario) && usuario1.compruebaPassword(password)) {
+                                    usuarioAuxiliar = usuario1;
+                                }
+
+                                if (usuario2.compruebaUsuario(usuario) && usuario2.compruebaPassword(password)) {
+                                    usuarioAuxiliar = usuario2;
+                                }
+
+                                if ((!usuario1.compruebaUsuario(usuario) || !usuario1.compruebaPassword(password)) && (!usuario2.compruebaUsuario(usuario) || !usuario2.compruebaPassword(password))) {
+                                    System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                                    System.out.println("ERROR: Usuario o contraseña incorrectos!!");
+                                    System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+                                }
+
+                            } while (!usuario1.compruebaUsuario(usuario) && !usuario1.compruebaPassword(password) && !usuario2.compruebaUsuario(usuario) && !usuario2.compruebaPassword(password));
+                        }
+
+
+
+
+
+
+
 
                         if (usuarioAuxiliar != null) {
                             //Menú usuario //TODO USUARIO
@@ -243,9 +286,9 @@ public class Main {
                                 try {
                                     opcionMenuUsuario = Integer.parseInt(sc.nextLine());
                                 } catch (NumberFormatException e) {
-                                    System.out.println("------------------------------------------------------------");
-                                    System.out.println("Por favor, introduzca un número para seleccionar una opción");
-                                    System.out.println("------------------------------------------------------------");
+                                    System.out.println(ANSI_RED + "\n----------------------------------------------------------------------------");
+                                    System.out.println("ERROR:Por favor, introduzca un número para seleccionar una opción");
+                                    System.out.println("----------------------------------------------------------------------------\n" + ANSI_RESET);
                                 }
 
                                 switch (opcionMenuUsuario) {
@@ -265,9 +308,9 @@ public class Main {
                                                         System.out.println("3.- Alta");
                                                         opcionMenuPrioridadIncidencias = Integer.parseInt(sc.nextLine());
                                                     } catch (NumberFormatException e) {
-                                                        System.out.println("\n--------------------------------------------------------------------------");
+                                                        System.out.println(ANSI_RED + "\n----------------------------------------------------------------------------");
                                                         System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción!!");
-                                                        System.out.println("--------------------------------------------------------------------------\n");
+                                                        System.out.println("----------------------------------------------------------------------------\n" + ANSI_RESET);
                                                     }
                                                 } while (opcionMenuPrioridadIncidencias == 0);
 
@@ -312,9 +355,9 @@ public class Main {
                                                         System.out.println("3.- Alta");
                                                         opcionMenuPrioridadIncidencias = Integer.parseInt(sc.nextLine());
                                                     } catch (NumberFormatException e) {
-                                                        System.out.println("\n--------------------------------------------------------------------------");
+                                                        System.out.println(ANSI_RED + "\n----------------------------------------------------------------------------");
                                                         System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción!!");
-                                                        System.out.println("--------------------------------------------------------------------------\n");
+                                                        System.out.println("----------------------------------------------------------------------------\n" + ANSI_RESET);
                                                     }
                                                 }while (opcionMenuPrioridadIncidencias == 0);
 
@@ -364,9 +407,9 @@ public class Main {
                                                         System.out.println("3.- Alta");
                                                         opcionMenuPrioridadIncidencias = Integer.parseInt(sc.nextLine());
                                                     } catch (NumberFormatException e) {
-                                                        System.out.println("\n--------------------------------------------------------------------------");
+                                                        System.out.println(ANSI_RED + "\n----------------------------------------------------------------------------");
                                                         System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción!!");
-                                                        System.out.println("--------------------------------------------------------------------------\n");
+                                                        System.out.println("----------------------------------------------------------------------------\n" + ANSI_RESET);
                                                     }
                                                 } while (opcionMenuPrioridadIncidencias == 0);
 
@@ -548,9 +591,9 @@ public class Main {
                                 try {
                                     opcionMenuTecnico = Integer.parseInt(sc.nextLine());
                                 } catch (NumberFormatException e) {
-                                    System.out.println("\n------------------------------------------------------------");
-                                    System.out.println("Por favor, introduzca un número para seleccionar una opción");
-                                    System.out.println("------------------------------------------------------------\n");
+                                    System.out.println(ANSI_RED + "----------------------------------------------------------------------------");
+                                    System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción");
+                                    System.out.println("----------------------------------------------------------------------------" + ANSI_RESET);
                                 }
 
                                 switch (opcionMenuTecnico) {
@@ -605,9 +648,9 @@ public class Main {
                                                     System.out.println("Introduzca la id de la incidencia que quiere cerrar:");
                                                     idCerrarIncidencia = Integer.parseInt(sc.nextLine());
                                                 } catch (NumberFormatException e) {
-                                                    System.out.println("\n----------------------------------------");
+                                                    System.out.println(ANSI_RED + "\n----------------------------------------");
                                                     System.out.println("ERROR: La id debe ser un número!!");
-                                                    System.out.println("----------------------------------------\n");
+                                                    System.out.println("----------------------------------------\n" + ANSI_RESET);
                                                 }
                                             } while (idCerrarIncidencia == 0);
 
@@ -739,9 +782,9 @@ public class Main {
                         try {
                             opcionMenuAdministrador = Integer.parseInt(sc.nextLine());
                         } catch (NumberFormatException e) {
-                            System.out.println("--------------------------------------------------------------------------");
+                            System.out.println(ANSI_RED + "----------------------------------------------------------------------------");
                             System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción");
-                            System.out.println("--------------------------------------------------------------------------");
+                            System.out.println("----------------------------------------------------------------------------" + ANSI_RESET);
                         }
 
                         switch (opcionMenuAdministrador) {
@@ -878,9 +921,9 @@ public class Main {
                                                     System.out.println("Introduzca la id de la incidencia que quiere asignar: ");
                                                     idIncidencia = Integer.parseInt(sc.nextLine());
                                                 } catch (NumberFormatException e) {
-                                                    System.out.println("\n----------------------------------------");
+                                                    System.out.println(ANSI_RED + "\n----------------------------------------");
                                                     System.out.println("ERROR: La id debe ser un número!!");
-                                                    System.out.println("----------------------------------------\n");
+                                                    System.out.println("----------------------------------------\n" + ANSI_RESET);
                                                 }
                                             } while (idIncidencia == 0);
 
@@ -919,9 +962,9 @@ public class Main {
                                                         System.out.println("Introduzca la id del tecnico al que quiere asignar la incidencia: ");
                                                         idTecnico = Integer.parseInt(sc.nextLine());
                                                     } catch (NumberFormatException e) {
-                                                        System.out.println("\n----------------------------------------");
+                                                        System.out.println(ANSI_RED + "\n----------------------------------------");
                                                         System.out.println("ERROR: La id debe ser un número!!");
-                                                        System.out.println("----------------------------------------\n");
+                                                        System.out.println("----------------------------------------\n" + ANSI_RESET);
                                                     }
                                                 } while (idTecnico == 0);
 
