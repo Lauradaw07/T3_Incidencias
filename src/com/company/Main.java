@@ -40,7 +40,7 @@ public class Main {
 
         //Variables registro usuario
         String nombreUsuario, usuarioUsuario, passwordUsuario, correoUsuario, dniUsuario;
-        int telefonoUsuario = 0, tokenUsuario1 = 0, tokenUsuario2 = 0;
+        int telefonoUsuario = 0;
         boolean correoigual = false, validado = false;
 
         //Variables inicio de sesión usuarios
@@ -116,9 +116,6 @@ public class Main {
                         System.out.println("Introduzca su nombre de usuario:");
                         usuarioUsuario = sc.nextLine();
 
-                        //TODO EXPRESIÓN REGULAR Y COMPROBAR QUE LOS CORREOS NO SE REPITEN
-
-
                         do {
                             if (usuario1.getCorreo() == null){
                                 System.out.println("Introduzca su correo electrónico:");
@@ -175,9 +172,9 @@ public class Main {
                             //TODO TOKEN
                             //Aquí se crea el token y se envía al correo del usuario1
 
-                            tokenUsuario1 = ((int) (Math.random() * 9000) + 1000);
+                            int tokenUsuario1 = Funciones.generaToken();
 
-                            usuario1.setTokenUsuario1(tokenUsuario1);
+                            usuario1.setToken(tokenUsuario1);
 
                             usuario1.setValidado(false);
 
@@ -186,7 +183,7 @@ public class Main {
                             String asunto = "Validación de tu cuenta";
 
                             String cuerpo = "<h1>Bienvenido al Sistema de Gestión de Incidencias</h1>" +
-                                    "<p>Hola " + usuario1.getNombre() + " tu código de validación es: " + tokenUsuario1 +"</p>";
+                                    "<p>Hola " + usuario1.getNombre() + " tu código de validación es: " + usuario1.getToken() +"</p>";
 
                             Funciones.enviarConGMail(destinatario, asunto, cuerpo);
 
@@ -195,21 +192,27 @@ public class Main {
                             //TODO TOKEN
                             usuario2 = usuarioDeRegistro;
 
-                            //TODO COMPROBAR QUE EL TOKEN DEL USUARIO1 NO SEA IGUAL AL DEL USUARIO2, ANTES DE SETEAR EL TOKEN DEL USUARIO2
-
                             //Aquí se crea el token y se envía al correo del usuario2
-                            tokenUsuario2 = ((int) (Math.random() * 9000) + 1000);
+                            int tokenUsuario2 = Funciones.generaToken();
 
-                            usuario2.setTokenUsuario2(tokenUsuario2);
+                            if (usuario1.getNombre() == null) {
+                                usuario2.setToken(tokenUsuario2);
+                            } else if (tokenUsuario2 == usuario1.getToken()) {
+                                tokenUsuario2 = Funciones.generaToken();
+                                usuario2.setToken(tokenUsuario2);
+                            } else {
+                                usuario2.setToken(tokenUsuario2);
+                            }
 
                             usuario2.setValidado(false);
 
+                            //Correo validación
                             String destinatario = usuario2.getCorreo(); // Destinatario del mensaje
 
                             String asunto = "Validación de tu cuenta";
 
                             String cuerpo = "<h1>Bienvenido al Sistema de Gestión de Incidencias</h1>" +
-                                    "<p>Hola " + usuario2.getNombre() + " tu código de validación es: " + tokenUsuario2 +"</p>";
+                                    "<p>Hola " + usuario2.getNombre() + " tu código de validación es: " + usuario2.getToken() +"</p>";
 
                             Funciones.enviarConGMail(destinatario, asunto, cuerpo);
 
@@ -225,331 +228,331 @@ public class Main {
                     //INICIAR SESIÓN COMO USUARIO
                     if (usuario1.getNombre() != null || usuario2.getNombre() != null){
                         //TODO CONTROLAR QUE LOS USUARIOS SOLO PUEDAN ENTRAR CON SU TOKEN Y NO CON EL DE OTRA CUENTA
+                        do {
+                            System.out.println("Introduzca su nombre de usuario:");
+                            usuario = sc.nextLine();
 
-                        if (usuario1.isValidado() == false || usuario2.isValidado() == false){
-                            while (!validado){
-                                System.out.println("Revise su correo para obtener su código de validación.");
+                            System.out.println("Introduzca su contraseña:");
+                            password = sc.nextLine();
+
+                            //Aquí se comprueba que la contraseña introducida y la registrada son iguales
+                            if (usuario1.compruebaUsuario(usuario) && usuario1.compruebaPassword(password)) {
+                                usuarioAuxiliar = usuario1;
+                            }
+
+                            if (usuario2.compruebaUsuario(usuario) && usuario2.compruebaPassword(password)) {
+                                usuarioAuxiliar = usuario2;
+                            }
+
+                            if ((!usuario1.compruebaUsuario(usuario) || !usuario1.compruebaPassword(password)) && (!usuario2.compruebaUsuario(usuario) || !usuario2.compruebaPassword(password))) {
+                                System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                                System.out.println("ERROR: Usuario o contraseña incorrectos!!");
+                                System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+                            }
+
+                        } while (usuarioAuxiliar == null);
+
+                        if (!usuarioAuxiliar.isValidado()){
+                            do {
+                                System.out.println(ANSI_RED + "\n----------------------------------------");
+                                System.out.println("Primero debe validar su cuenta!!");
+                                System.out.println("----------------------------------------\n" + ANSI_RESET);
+
+                                System.out.println("Revise previamente su correo para obtener su código de validación.");
                                 System.out.println("Introduzca el código:");
                                 codigo = Integer.parseInt(sc.nextLine());
 
-                                if (codigo == usuario1.getTokenUsuario1()) {
-                                    validado = true;
-                                } else if (codigo == usuario2.getTokenUsuario2()) {
-                                    validado = true;
+                                if (usuarioAuxiliar.validaUsuario(codigo)) {
+                                    usuarioAuxiliar.setValidado(true);
                                 }
 
-                                if (codigo != usuario1.getTokenUsuario1() && codigo != usuario2.getTokenUsuario2()) {
+                                if (!usuarioAuxiliar.validaUsuario(codigo)) {
                                     System.out.println(ANSI_RED + "\n--------------------------------------------------------------------");
                                     System.out.println("ERROR: El código de validación no pertenece a esta cuenta!!");
                                     System.out.println("--------------------------------------------------------------------\n" + ANSI_RESET);
                                 }
 
-                            }
+                            } while (!usuarioAuxiliar.validaUsuario(codigo));
 
-                            do {
-                                System.out.println("Introduzca su nombre de usuario:");
-                                usuario = sc.nextLine();
+                            usuarioAuxiliar = null;
+                        } else {
+                            if (usuarioAuxiliar != null && usuarioAuxiliar.isValidado()) {
+                                //Menú usuario //TODO USUARIO
+                                do {
 
-                                System.out.println("Introduzca su contraseña:");
-                                password = sc.nextLine();
+                                    Funciones.pintaMenuUsuario(usuarioAuxiliar.getNombre());
+                                    try {
+                                        opcionMenuUsuario = Integer.parseInt(sc.nextLine());
+                                    } catch (NumberFormatException e) {
+                                        System.out.println("------------------------------------------------------------");
+                                        System.out.println("Por favor, introduzca un número para seleccionar una opción");
+                                        System.out.println("------------------------------------------------------------");
+                                    }
 
-                                //Aquí se comprueba que la contraseña introducida y la registrada son iguales
-                                if (usuario1.compruebaUsuario(usuario) && usuario1.compruebaPassword(password)) {
-                                    usuarioAuxiliar = usuario1;
-                                }
-
-                                if (usuario2.compruebaUsuario(usuario) && usuario2.compruebaPassword(password)) {
-                                    usuarioAuxiliar = usuario2;
-                                }
-
-                                if ((!usuario1.compruebaUsuario(usuario) || !usuario1.compruebaPassword(password)) && (!usuario2.compruebaUsuario(usuario) || !usuario2.compruebaPassword(password))) {
-                                    System.out.println(ANSI_RED + "---------------------------------------------------------------------");
-                                    System.out.println("ERROR: Usuario o contraseña incorrectos!!");
-                                    System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
-                                }
-
-                            } while (!usuario1.compruebaUsuario(usuario) && !usuario1.compruebaPassword(password) && !usuario2.compruebaUsuario(usuario) && !usuario2.compruebaPassword(password));
-                        }
-
-
-
-
-
-
-
-
-                        if (usuarioAuxiliar != null) {
-                            //Menú usuario //TODO USUARIO
-                            do {
-
-                                Funciones.pintaMenuUsuario(usuarioAuxiliar.getNombre());
-                                try {
-                                    opcionMenuUsuario = Integer.parseInt(sc.nextLine());
-                                } catch (NumberFormatException e) {
-                                    System.out.println(ANSI_RED + "\n----------------------------------------------------------------------------");
-                                    System.out.println("ERROR:Por favor, introduzca un número para seleccionar una opción");
-                                    System.out.println("----------------------------------------------------------------------------\n" + ANSI_RESET);
-                                }
-
-                                switch (opcionMenuUsuario) {
-                                    case 1:
-                                        //REGISTRAR NUEVA INCIDENCIA
-                                        if (contadorIncidencias < 3) {
-
-                                            if (usuarioAuxiliar.getIncidencia1() == null) {
-                                                System.out.println("Introduzca un comentario:");
-                                                comentario = sc.nextLine();
-
-                                                do {
-                                                    try {
-                                                        System.out.println("Indique la prioridad de la incidencia:");
-                                                        System.out.println("1.- Baja");
-                                                        System.out.println("2.- Media");
-                                                        System.out.println("3.- Alta");
-                                                        opcionMenuPrioridadIncidencias = Integer.parseInt(sc.nextLine());
-                                                    } catch (NumberFormatException e) {
-                                                        System.out.println(ANSI_RED + "\n----------------------------------------------------------------------------");
-                                                        System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción!!");
-                                                        System.out.println("----------------------------------------------------------------------------\n" + ANSI_RESET);
-                                                    }
-                                                } while (opcionMenuPrioridadIncidencias == 0);
-
-                                                switch (opcionMenuPrioridadIncidencias) {
-                                                    case 1:
-                                                        prioridad = "Baja";
-                                                        break;
-                                                    case 2:
-                                                        prioridad = "Media";
-                                                        break;
-                                                    case 3:
-                                                        prioridad = "Alta";
-                                                        break;
-                                                }
-
-                                                //Aquí se registra la incidencia1
-                                                incidencia1 = new Incidencia(usuarioAuxiliar,null, comentario, prioridad, false,false, "No existen comentarios todavía");
-
-                                                int idIncidencia1 = Funciones.generaID();
-
-                                                usuarioAuxiliar.setIncidencia1(incidencia1);
-
-                                                usuarioAuxiliar.getIncidencia1().setId(idIncidencia1);
-
-                                                contadorIncidencias++;
-
-                                                System.out.println(ANSI_GREEN + "---------------------------------------------------------------------");
-                                                System.out.println("Incidencia registrada con éxito!!");
-                                                System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
-
-                                                opcionMenuPrioridadIncidencias = 0;
-
-                                            } else if (usuarioAuxiliar.getIncidencia2() == null) {
-                                                System.out.println("Introduzca un comentario:");
-                                                comentario = sc.nextLine();
-
-                                                do {
-                                                    try {
-                                                        System.out.println("Indique la prioridad de la incidencia:");
-                                                        System.out.println("1.- Baja");
-                                                        System.out.println("2.- Media");
-                                                        System.out.println("3.- Alta");
-                                                        opcionMenuPrioridadIncidencias = Integer.parseInt(sc.nextLine());
-                                                    } catch (NumberFormatException e) {
-                                                        System.out.println(ANSI_RED + "\n----------------------------------------------------------------------------");
-                                                        System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción!!");
-                                                        System.out.println("----------------------------------------------------------------------------\n" + ANSI_RESET);
-                                                    }
-                                                }while (opcionMenuPrioridadIncidencias == 0);
-
-                                                switch (opcionMenuPrioridadIncidencias) {
-                                                    case 1:
-                                                        prioridad = "Baja";
-                                                        break;
-                                                    case 2:
-                                                        prioridad = "Media";
-                                                        break;
-                                                    case 3:
-                                                        prioridad = "Alta";
-                                                        break;
-                                                }
-
-                                                //Aquí se registra la incidencia2
-                                                incidencia2 = new Incidencia(usuarioAuxiliar,null, comentario, prioridad,false, false, "No existen comentarios todavía");
-
-                                                usuarioAuxiliar.setIncidencia2(incidencia2);
-
-                                                int idIncidencia2 = Funciones.generaID();
+                                    switch (opcionMenuUsuario) {
+                                        case 1:
+                                            //REGISTRAR NUEVA INCIDENCIA
+                                            if (contadorIncidencias < 3) {
 
                                                 if (usuarioAuxiliar.getIncidencia1() == null) {
-                                                    usuarioAuxiliar.getIncidencia2().setId(idIncidencia2);
-                                                } else if (usuarioAuxiliar.getIncidencia1().getId() == idIncidencia2){
-                                                    idIncidencia2 = Funciones.generaID();
-                                                    usuarioAuxiliar.getIncidencia2().setId(idIncidencia2);
+                                                    System.out.println("Introduzca un comentario:");
+                                                    comentario = sc.nextLine();
+
+                                                    do {
+                                                        try {
+                                                            System.out.println("Indique la prioridad de la incidencia:");
+                                                            System.out.println("1.- Baja");
+                                                            System.out.println("2.- Media");
+                                                            System.out.println("3.- Alta");
+                                                            opcionMenuPrioridadIncidencias = Integer.parseInt(sc.nextLine());
+                                                        } catch (NumberFormatException e) {
+                                                            System.out.println("\n--------------------------------------------------------------------------");
+                                                            System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción!!");
+                                                            System.out.println("--------------------------------------------------------------------------\n");
+                                                        }
+                                                    } while (opcionMenuPrioridadIncidencias == 0);
+
+                                                    switch (opcionMenuPrioridadIncidencias) {
+                                                        case 1:
+                                                            prioridad = "Baja";
+                                                            break;
+                                                        case 2:
+                                                            prioridad = "Media";
+                                                            break;
+                                                        case 3:
+                                                            prioridad = "Alta";
+                                                            break;
+                                                    }
+
+                                                    //Aquí se registra la incidencia1
+                                                    incidencia1 = new Incidencia(usuarioAuxiliar,null, comentario, prioridad, false,false, "No existen comentarios todavía");
+
+                                                    int idIncidencia1 = Funciones.generaID();
+
+                                                    usuarioAuxiliar.setIncidencia1(incidencia1);
+
+                                                    usuarioAuxiliar.getIncidencia1().setId(idIncidencia1);
+
+                                                    contadorIncidencias++;
+
+                                                    System.out.println(ANSI_GREEN + "---------------------------------------------------------------------");
+                                                    System.out.println("Incidencia registrada con éxito!!");
+                                                    System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+
+                                                    opcionMenuPrioridadIncidencias = 0;
+
+                                                } else if (usuarioAuxiliar.getIncidencia2() == null) {
+                                                    System.out.println("Introduzca un comentario:");
+                                                    comentario = sc.nextLine();
+
+                                                    do {
+                                                        try {
+                                                            System.out.println("Indique la prioridad de la incidencia:");
+                                                            System.out.println("1.- Baja");
+                                                            System.out.println("2.- Media");
+                                                            System.out.println("3.- Alta");
+                                                            opcionMenuPrioridadIncidencias = Integer.parseInt(sc.nextLine());
+                                                        } catch (NumberFormatException e) {
+                                                            System.out.println("\n--------------------------------------------------------------------------");
+                                                            System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción!!");
+                                                            System.out.println("--------------------------------------------------------------------------\n");
+                                                        }
+                                                    }while (opcionMenuPrioridadIncidencias == 0);
+
+                                                    switch (opcionMenuPrioridadIncidencias) {
+                                                        case 1:
+                                                            prioridad = "Baja";
+                                                            break;
+                                                        case 2:
+                                                            prioridad = "Media";
+                                                            break;
+                                                        case 3:
+                                                            prioridad = "Alta";
+                                                            break;
+                                                    }
+
+                                                    //Aquí se registra la incidencia2
+                                                    incidencia2 = new Incidencia(usuarioAuxiliar,null, comentario, prioridad,false, false, "No existen comentarios todavía");
+
+                                                    usuarioAuxiliar.setIncidencia2(incidencia2);
+
+                                                    int idIncidencia2 = Funciones.generaID();
+
+                                                    if (usuarioAuxiliar.getIncidencia1() == null) {
+                                                        usuarioAuxiliar.getIncidencia2().setId(idIncidencia2);
+                                                    } else if (usuarioAuxiliar.getIncidencia1().getId() == idIncidencia2){
+                                                        idIncidencia2 = Funciones.generaID();
+                                                        usuarioAuxiliar.getIncidencia2().setId(idIncidencia2);
+                                                    } else {
+                                                        usuarioAuxiliar.getIncidencia2().setId(idIncidencia2);
+                                                    }
+
+                                                    contadorIncidencias++;
+
+                                                    System.out.println(ANSI_GREEN + "---------------------------------------------------------------------");
+                                                    System.out.println("Incidencia registrada con éxito!!");
+                                                    System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+
+                                                    opcionMenuPrioridadIncidencias = 0;
+
+                                                } else {
+                                                    System.out.println("Introduzca un comentario:");
+                                                    comentario = sc.nextLine();
+
+                                                    do {
+                                                        try {
+                                                            System.out.println("Indique la prioridad de la incidencia:");
+                                                            System.out.println("1.- Baja");
+                                                            System.out.println("2.- Media");
+                                                            System.out.println("3.- Alta");
+                                                            opcionMenuPrioridadIncidencias = Integer.parseInt(sc.nextLine());
+                                                        } catch (NumberFormatException e) {
+                                                            System.out.println("\n--------------------------------------------------------------------------");
+                                                            System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción!!");
+                                                            System.out.println("--------------------------------------------------------------------------\n");
+                                                        }
+                                                    } while (opcionMenuPrioridadIncidencias == 0);
+
+                                                    switch (opcionMenuPrioridadIncidencias) {
+                                                        case 1:
+                                                            prioridad = "Baja";
+                                                            break;
+                                                        case 2:
+                                                            prioridad = "Media";
+                                                            break;
+                                                        case 3:
+                                                            prioridad = "Alta";
+                                                            break;
+                                                        default:
+                                                            System.out.println(ANSI_RED + "-------------------------------------------------");
+                                                            System.out.println("ERROR: Acción imposible!!");
+                                                            System.out.println("-------------------------------------------------\n" + ANSI_RESET);
+                                                            break;
+                                                    }
+
+                                                    //Aquí se registra la incidencia3
+                                                    incidencia3 = new Incidencia(usuarioAuxiliar, null,comentario, prioridad, false,false, "No existen comentarios todavía");
+
+                                                    usuarioAuxiliar.setIncidencia3(incidencia3);
+
+                                                    int idIncidencia3 = Funciones.generaID();
+
+                                                    if (usuarioAuxiliar.getIncidencia1() == null && usuarioAuxiliar.getIncidencia2() == null) {
+                                                        usuarioAuxiliar.getIncidencia3().setId(idIncidencia3);
+                                                    } else if (usuarioAuxiliar.getIncidencia1().getId() == idIncidencia3 || usuarioAuxiliar.getIncidencia2().getId() == idIncidencia3){
+                                                        idIncidencia3 = Funciones.generaID();
+                                                        usuarioAuxiliar.getIncidencia3().setId(idIncidencia3);
+                                                    } else {
+                                                        usuarioAuxiliar.getIncidencia3().setId(idIncidencia3);
+                                                    }
+
+                                                    contadorIncidencias++;
+
+                                                    System.out.println(ANSI_GREEN + "---------------------------------------------------------------------");
+                                                    System.out.println("Incidencia registrada con éxito!!");
+                                                    System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+
+                                                    opcionMenuPrioridadIncidencias = 0;
+                                                }
+                                            } else {
+                                                System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                                                System.out.println("ERROR: Se ha superado el número máximo de incidencias registradas!!");
+                                                System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+                                            }
+                                            break;
+                                        case 2:
+                                            //CONSULTAR INCIDENCIAS ABIERTAS
+                                            if (usuarioAuxiliar.getIncidencia1() != null){
+                                                if (!usuarioAuxiliar.getIncidencia1().isResuelto()) {
+                                                    System.out.println(usuarioAuxiliar.getIncidencia1().muestraIncidencia() + "\n");
                                                 }
 
-                                                contadorIncidencias++;
+                                                if (usuarioAuxiliar.getIncidencia2() != null) {
+                                                    if (!usuarioAuxiliar.getIncidencia2().isResuelto()) {
+                                                        System.out.println(usuarioAuxiliar.getIncidencia2().muestraIncidencia() + "\n");
+                                                    }
+                                                }
 
-                                                System.out.println(ANSI_GREEN + "---------------------------------------------------------------------");
-                                                System.out.println("Incidencia registrada con éxito!!");
-                                                System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+                                                if (usuarioAuxiliar.getIncidencia3() != null) {
+                                                    if (!usuarioAuxiliar.getIncidencia3().isResuelto()) {
+                                                        System.out.println(usuarioAuxiliar.getIncidencia3().muestraIncidencia() + "\n");
+                                                    }
+                                                }
 
-                                                opcionMenuPrioridadIncidencias = 0;
+                                                if (usuarioAuxiliar.getIncidencia1() == null && usuarioAuxiliar.getIncidencia2() == null && usuarioAuxiliar.getIncidencia3() == null) {
+                                                    System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                                                    System.out.println("ERROR: No existen incidencias abiertas registradas!!");
+                                                    System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+                                                }
 
                                             } else {
-                                                System.out.println("Introduzca un comentario:");
-                                                comentario = sc.nextLine();
-
-                                                do {
-                                                    try {
-                                                        System.out.println("Indique la prioridad de la incidencia:");
-                                                        System.out.println("1.- Baja");
-                                                        System.out.println("2.- Media");
-                                                        System.out.println("3.- Alta");
-                                                        opcionMenuPrioridadIncidencias = Integer.parseInt(sc.nextLine());
-                                                    } catch (NumberFormatException e) {
-                                                        System.out.println(ANSI_RED + "\n----------------------------------------------------------------------------");
-                                                        System.out.println("ERROR: Por favor, introduzca un número para seleccionar una opción!!");
-                                                        System.out.println("----------------------------------------------------------------------------\n" + ANSI_RESET);
-                                                    }
-                                                } while (opcionMenuPrioridadIncidencias == 0);
-
-                                                switch (opcionMenuPrioridadIncidencias) {
-                                                    case 1:
-                                                        prioridad = "Baja";
-                                                        break;
-                                                    case 2:
-                                                        prioridad = "Media";
-                                                        break;
-                                                    case 3:
-                                                        prioridad = "Alta";
-                                                        break;
-                                                    default:
-                                                        System.out.println(ANSI_RED + "-------------------------------------------------");
-                                                        System.out.println("ERROR: Acción imposible!!");
-                                                        System.out.println("-------------------------------------------------\n" + ANSI_RESET);
-                                                        break;
-                                                }
-
-                                                //Aquí se registra la incidencia3
-                                                incidencia3 = new Incidencia(usuarioAuxiliar, null,comentario, prioridad, false,false, "No existen comentarios todavía");
-
-                                                usuarioAuxiliar.setIncidencia3(incidencia3);
-
-                                                int idIncidencia3 = Funciones.generaID();
-
-                                                if (usuarioAuxiliar.getIncidencia1() == null && usuarioAuxiliar.getIncidencia2() == null) {
-                                                    usuarioAuxiliar.getIncidencia3().setId(idIncidencia3);
-                                                } else if (usuarioAuxiliar.getIncidencia1().getId() == idIncidencia3 || usuarioAuxiliar.getIncidencia2().getId() == idIncidencia3){
-                                                    idIncidencia3 = Funciones.generaID();
-                                                    usuarioAuxiliar.getIncidencia3().setId(idIncidencia3);
-                                                }
-
-                                                contadorIncidencias++;
-
-                                                System.out.println(ANSI_GREEN + "---------------------------------------------------------------------");
-                                                System.out.println("Incidencia registrada con éxito!!");
-                                                System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
-
-                                                opcionMenuPrioridadIncidencias = 0;
-                                            }
-                                        } else {
-                                            System.out.println(ANSI_RED + "---------------------------------------------------------------------");
-                                            System.out.println("ERROR: Se ha superado el número máximo de incidencias registradas!!");
-                                            System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
-                                        }
-                                        break;
-                                    case 2:
-                                        //CONSULTAR INCIDENCIAS ABIERTAS
-                                        if (usuarioAuxiliar.getIncidencia1() != null){
-                                            if (!usuarioAuxiliar.getIncidencia1().isResuelto()) {
-                                                System.out.println(usuarioAuxiliar.getIncidencia1().muestraIncidencia() + "\n");
-                                            }
-
-                                            if (usuarioAuxiliar.getIncidencia2() != null) {
-                                                if (!usuarioAuxiliar.getIncidencia2().isResuelto()) {
-                                                    System.out.println(usuarioAuxiliar.getIncidencia2().muestraIncidencia() + "\n");
-                                                }
-                                            }
-
-                                            if (usuarioAuxiliar.getIncidencia3() != null) {
-                                                if (!usuarioAuxiliar.getIncidencia3().isResuelto()) {
-                                                    System.out.println(usuarioAuxiliar.getIncidencia3().muestraIncidencia() + "\n");
-                                                }
-                                            }
-
-                                            if (usuarioAuxiliar.getIncidencia1() == null && usuarioAuxiliar.getIncidencia2() == null && usuarioAuxiliar.getIncidencia3() == null) {
                                                 System.out.println(ANSI_RED + "---------------------------------------------------------------------");
                                                 System.out.println("ERROR: No existen incidencias abiertas registradas!!");
                                                 System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
                                             }
-
-                                        } else {
-                                            System.out.println(ANSI_RED + "---------------------------------------------------------------------");
-                                            System.out.println("ERROR: No existen incidencias abiertas registradas!!");
-                                            System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
-                                        }
-                                        break;
-                                    case 3:
-                                        //CONSULTAR INCIDENCIAS CERRADAS
-                                        if (tecnico1.getIncidenciaResuelta1() != null) {
-                                            System.out.println(tecnico1.getIncidenciaResuelta1().muestraIncidencia() + "\n");
-                                        }
-
-                                        if (tecnico1.getIncidenciaResuelta2() != null) {
-                                            System.out.println(tecnico1.getIncidenciaResuelta2().muestraIncidencia() + "\n");
-                                        }
-
-                                        if (tecnico2.getIncidenciaResuelta1() != null) {
-                                            System.out.println(tecnico2.getIncidenciaResuelta1().muestraIncidencia() + "\n");
-                                        }
-
-                                        if (tecnico2.getIncidenciaResuelta2() != null) {
-                                            System.out.println(tecnico2.getIncidenciaResuelta2().muestraIncidencia() + "\n");
-                                        }
-
-                                        if (tecnico1.getIncidenciaResuelta1() == null && tecnico1.getIncidenciaResuelta2() == null && tecnico2.getIncidenciaResuelta1() == null && tecnico2.getIncidenciaResuelta2() == null) {
-                                            System.out.println(ANSI_RED + "---------------------------------------------------------------------");
-                                            System.out.println("ERROR: No existen incidencias cerradas registradas!!");
-                                            System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
-                                        }
-                                        break;
-                                    case 4:
-                                        //MOSTRAR PERFIL DEL USUARIO
-                                        System.out.println(usuario1.toString());
-                                        break;
-                                    case 5:
-                                        //CAMBIAR CONTRASEÑA USUARIO
-                                        do {
-                                            System.out.println("Introduzca su contraseña actual:");
-                                            password = sc.nextLine();
-
-                                            if (!usuarioAuxiliar.compruebaPassword(password)){
-                                                System.out.println(ANSI_RED + "---------------------------------------------------------------------");
-                                                System.out.println("ERROR: Contraseña incorrecta!!");
-                                                System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+                                            break;
+                                        case 3:
+                                            //CONSULTAR INCIDENCIAS CERRADAS
+                                            if (tecnico1.getIncidenciaResuelta1() != null) {
+                                                System.out.println(tecnico1.getIncidenciaResuelta1().muestraIncidencia() + "\n");
                                             }
 
-                                        }while (!usuarioAuxiliar.compruebaPassword(password));
+                                            if (tecnico1.getIncidenciaResuelta2() != null) {
+                                                System.out.println(tecnico1.getIncidenciaResuelta2().muestraIncidencia() + "\n");
+                                            }
 
-                                        if (usuarioAuxiliar.compruebaPassword(password)){
-                                            System.out.println("Introduzca su nueva contraseña:");
-                                            nuevaPassword = sc.nextLine();
-                                            usuarioAuxiliar.setPasswordRegistrada(nuevaPassword);
-                                            System.out.println(ANSI_GREEN + "-------------------------------------------------");
-                                            System.out.println("Clave cambiada con éxito!!");
-                                            System.out.println("-------------------------------------------------\n" + ANSI_RESET);
-                                        }
-                                        break;
-                                    case 6:
-                                        //CERRAR SESIÓN USUARIO
-                                        contadorIncidencias = 0;
-                                        usuarioAuxiliar = null;
-                                        cerrarSesionUsuario = true;
-                                        break;
-                                    default: break;
-                                }
+                                            if (tecnico2.getIncidenciaResuelta1() != null) {
+                                                System.out.println(tecnico2.getIncidenciaResuelta1().muestraIncidencia() + "\n");
+                                            }
 
-                            }  while (!cerrarSesionUsuario);
+                                            if (tecnico2.getIncidenciaResuelta2() != null) {
+                                                System.out.println(tecnico2.getIncidenciaResuelta2().muestraIncidencia() + "\n");
+                                            }
+
+                                            if (tecnico1.getIncidenciaResuelta1() == null && tecnico1.getIncidenciaResuelta2() == null && tecnico2.getIncidenciaResuelta1() == null && tecnico2.getIncidenciaResuelta2() == null) {
+                                                System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                                                System.out.println("ERROR: No existen incidencias cerradas registradas!!");
+                                                System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+                                            }
+                                            break;
+                                        case 4:
+                                            //MOSTRAR PERFIL DEL USUARIO
+                                            System.out.println(usuario1.toString());
+                                            break;
+                                        case 5:
+                                            //CAMBIAR CONTRASEÑA USUARIO
+                                            do {
+                                                System.out.println("Introduzca su contraseña actual:");
+                                                password = sc.nextLine();
+
+                                                if (!usuarioAuxiliar.compruebaPassword(password)){
+                                                    System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                                                    System.out.println("ERROR: Contraseña incorrecta!!");
+                                                    System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+                                                }
+
+                                            }while (!usuarioAuxiliar.compruebaPassword(password));
+
+                                            if (usuarioAuxiliar.compruebaPassword(password)){
+                                                System.out.println("Introduzca su nueva contraseña:");
+                                                nuevaPassword = sc.nextLine();
+                                                usuarioAuxiliar.setPasswordRegistrada(nuevaPassword);
+                                                System.out.println(ANSI_GREEN + "-------------------------------------------------");
+                                                System.out.println("Clave cambiada con éxito!!");
+                                                System.out.println("-------------------------------------------------\n" + ANSI_RESET);
+                                            }
+                                            break;
+                                        case 6:
+                                            //CERRAR SESIÓN USUARIO
+                                            contadorIncidencias = 0;
+                                            usuarioAuxiliar = null;
+                                            cerrarSesionUsuario = true;
+                                            break;
+                                        default: break;
+                                    }
+
+                                }  while (!cerrarSesionUsuario);
+                            }
                         }
                     } else {
                         System.out.println(ANSI_RED + "----------------------------------------------------------------------");
@@ -940,7 +943,7 @@ public class Main {
                                                 incidenciaElegida = usuario2.getIncidencia2();
                                             } else if (usuario2.getIncidencia3() != null && idIncidencia == usuario2.getIncidencia3().getId()){
                                                 incidenciaElegida = usuario2.getIncidencia3();
-                                            } else { //TODO CÓDIGO DUPLICADO?
+                                            } else {
                                                 System.out.println(ANSI_RED + "-------------------------------------------------------------------------------------------");
                                                 System.out.println("ERROR: La id introducida no coincide con la id de ninguna incidencia registrada!!");
                                                 System.out.println("-------------------------------------------------------------------------------------------\n" + ANSI_RESET);

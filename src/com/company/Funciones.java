@@ -93,6 +93,12 @@ public class Funciones {
         return id;
     }
 
+    //GENERAR TOKEN
+    public static int generaToken() {
+        int token = ((int) (Math.random() * 9000) + 1000);
+        return token;
+    }
+
     //ENVIAR CORREOS
     public static void enviarConGMail(String destinatario, String asunto, String cuerpo) {
         String remitente = "admiproyectoincidencias@gmail.com";

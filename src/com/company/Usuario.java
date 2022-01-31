@@ -14,8 +14,7 @@ public class Usuario {
     private Incidencia incidencia1;
     private Incidencia incidencia2;
     private Incidencia incidencia3;
-    private int tokenUsuario1;
-    private int tokenUsuario2;
+    private int token;
     private boolean validado;
 
     //Getters y setters
@@ -99,20 +98,12 @@ public class Usuario {
         this.confirmacionPassword = confirmacionPassword;
     }
 
-    public int getTokenUsuario1() {
-        return tokenUsuario1;
+    public int getToken() {
+        return token;
     }
 
-    public void setTokenUsuario1(int tokenUsuario1) {
-        this.tokenUsuario1 = tokenUsuario1;
-    }
-
-    public int getTokenUsuario2() {
-        return tokenUsuario2;
-    }
-
-    public void setTokenUsuario2(int tokenUsuario2) {
-        this.tokenUsuario2 = tokenUsuario2;
+    public void setToken(int token) {
+        this.token = token;
     }
 
     public boolean isValidado() {
@@ -178,6 +169,13 @@ public class Usuario {
         }
     }
 
+    public  boolean validaUsuario (int codigo) {
+        if (codigo == getToken()){
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 
 }
