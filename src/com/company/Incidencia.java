@@ -119,6 +119,8 @@ public class Incidencia {
     //Constructores //TODO ARREGLAR FECHA
     public Incidencia(Usuario usuario, Tecnico tecnico, String comentarioUsuario, String prioridad, boolean asignado, boolean resuelto, String comentarioTecnico) {
         Calendar calendar = Calendar.getInstance();
+        int idIncidencia = ((int) (Math.random() * 2000000) + 1000000);
+        this.id = idIncidencia;
         this.fechaRegistro = Calendar.getInstance();
         this.fechaImprimir = new SimpleDateFormat("dd-MM-yyyy").format(this.fechaRegistro.getTime());
         this.fechaActual = Calendar.getInstance();

@@ -41,6 +41,7 @@ public class Main {
         //Variables registro usuario
         String nombreUsuario, usuarioUsuario, passwordUsuario, correoUsuario, dniUsuario;
         int telefonoUsuario = 0;
+        boolean correoigual = false;
 
         //Variables registro técnico
 
@@ -115,8 +116,22 @@ public class Main {
 
                         //TODO EXPRESIÓN REGULAR Y COMPROBAR QUE LOS CORREOS NO SE REPITEN
 
-                        System.out.println("Introduzca su correo electrónico:");
-                        correoUsuario = sc.nextLine();
+
+                        do {
+                            if (usuario1.getCorreo() == null){
+                                System.out.println("Introduzca su correo electrónico:");
+                                correoUsuario = sc.nextLine();
+                            } else {
+                                System.out.println("Introduzca su correo electrónico:");
+                                correoUsuario = sc.nextLine();
+                                if (correoUsuario.equalsIgnoreCase(usuario1.getCorreo())) {
+                                    System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                                    System.out.println("ERROR: Este correo ya ha sido registrado en el sistema");
+                                    System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+                                }
+                            }
+
+                        } while (correoUsuario.equalsIgnoreCase(usuario1.getCorreo()));
 
                         do {
                             System.out.println("Introduzca su contraseña:");
