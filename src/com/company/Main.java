@@ -44,7 +44,7 @@ public class Main {
         boolean correoigual = false, validado = false;
 
         //Variables inicio de sesión usuarios
-        int codigo;
+        int codigo = 0;
 
         //Variables registro técnico
 
@@ -169,27 +169,27 @@ public class Main {
 
                         if (usuario1.getNombre() == null){
                             usuario1 = usuarioDeRegistro;
-                            //TODO TOKEN
-                            //Aquí se crea el token y se envía al correo del usuario1
 
+                            //Aquí se crea el token y se envía al correo del usuario1
                             int tokenUsuario1 = Funciones.generaToken();
 
                             usuario1.setToken(tokenUsuario1);
 
                             usuario1.setValidado(false);
 
+                            //Correo con token que se envía al usuario1
                             String destinatario = usuario1.getCorreo(); // Destinatario del mensaje
 
                             String asunto = "Validación de tu cuenta";
 
-                            String cuerpo = "<h1>Bienvenido al Sistema de Gestión de Incidencias</h1>" +
-                                    "<p>Hola " + usuario1.getNombre() + " tu código de validación es: " + usuario1.getToken() +"</p>";
+                            String cuerpo = "<h3>Bienvenido al Sistema de Gestión de Incidencias</h3>" +
+                                    "<p>Hola <b>" + usuario1.getNombre() + "</b> tu código de validación es: " + usuario1.getToken() +"</p>";
 
                             Funciones.enviarConGMail(destinatario, asunto, cuerpo);
 
                             contadorUsuarios++;
                         } else {
-                            //TODO TOKEN
+
                             usuario2 = usuarioDeRegistro;
 
                             //Aquí se crea el token y se envía al correo del usuario2
@@ -211,8 +211,8 @@ public class Main {
 
                             String asunto = "Validación de tu cuenta";
 
-                            String cuerpo = "<h1>Bienvenido al Sistema de Gestión de Incidencias</h1>" +
-                                    "<p>Hola " + usuario2.getNombre() + " tu código de validación es: " + usuario2.getToken() +"</p>";
+                            String cuerpo = "<h3>Bienvenido al Sistema de Gestión de Incidencias</h3>" +
+                                    "<p>Hola <b>" + usuario2.getNombre() + "</b> tu código de validación es: " + usuario2.getToken() +"</p>";
 
                             Funciones.enviarConGMail(destinatario, asunto, cuerpo);
 
@@ -227,7 +227,6 @@ public class Main {
                 case 2:
                     //INICIAR SESIÓN COMO USUARIO
                     if (usuario1.getNombre() != null || usuario2.getNombre() != null){
-                        //TODO CONTROLAR QUE LOS USUARIOS SOLO PUEDAN ENTRAR CON SU TOKEN Y NO CON EL DE OTRA CUENTA
                         do {
                             System.out.println("Introduzca su nombre de usuario:");
                             usuario = sc.nextLine();
@@ -254,13 +253,20 @@ public class Main {
 
                         if (!usuarioAuxiliar.isValidado()){
                             do {
-                                System.out.println(ANSI_RED + "\n----------------------------------------");
+                                System.out.println(ANSI_YELLOW + "\n----------------------------------------");
                                 System.out.println("Primero debe validar su cuenta!!");
                                 System.out.println("----------------------------------------\n" + ANSI_RESET);
 
                                 System.out.println("Revise previamente su correo para obtener su código de validación.");
                                 System.out.println("Introduzca el código:");
-                                codigo = Integer.parseInt(sc.nextLine());
+
+                                try {
+                                    codigo = Integer.parseInt(sc.nextLine());
+                                } catch (NumberFormatException e) {
+                                    System.out.println(ANSI_RED + "\n-----------------------------------------------------------");
+                                    System.out.println("ERROR: El código de validación debe ser un número!!");
+                                    System.out.println("-----------------------------------------------------------\n" + ANSI_RESET);
+                                }
 
                                 if (usuarioAuxiliar.validaUsuario(codigo)) {
                                     usuarioAuxiliar.setValidado(true);
@@ -280,6 +286,7 @@ public class Main {
                                 //Menú usuario //TODO USUARIO
                                 do {
 
+                                    //TODO CAMBIAR CORREO
                                     Funciones.pintaMenuUsuario(usuarioAuxiliar.getNombre());
                                     try {
                                         opcionMenuUsuario = Integer.parseInt(sc.nextLine());
@@ -333,11 +340,25 @@ public class Main {
 
                                                     usuarioAuxiliar.getIncidencia1().setId(idIncidencia1);
 
+                                                    //Correo que se manda al usuario con la incidencia
+                                                    String destinatario = usuarioAuxiliar.getCorreo(); // Destinatario del mensaje
+
+                                                    String asunto = "Incidencia registrada con éxito";
+
+                                                    String cuerpo = "<p>Saludos, <b>" + usuarioAuxiliar.getNombre() + "</b> le informamos de que su incidencia con id: " + usuarioAuxiliar.getIncidencia1().getId() +
+                                                            " ha sido registrada con éxito. </p> " +
+                                                            "<br>" +
+                                                            "<p> Puede consultar el estado de su incidencia desde el Sistema de Gestión de Incidencias. Le mandaremos un nuevo correo cuando haya sido resuelta.</p>";
+
+                                                    Funciones.enviarConGMail(destinatario, asunto, cuerpo);
+
                                                     contadorIncidencias++;
 
                                                     System.out.println(ANSI_GREEN + "---------------------------------------------------------------------");
                                                     System.out.println("Incidencia registrada con éxito!!");
                                                     System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+
+                                                    //TODO TELEGRAM ADMINISTRADOR
 
                                                     opcionMenuPrioridadIncidencias = 0;
 
@@ -387,11 +408,25 @@ public class Main {
                                                         usuarioAuxiliar.getIncidencia2().setId(idIncidencia2);
                                                     }
 
+                                                    //Correo que se manda al usuario con la incidencia
+                                                    String destinatario = usuarioAuxiliar.getCorreo(); // Destinatario del mensaje
+
+                                                    String asunto = "Incidencia registrada con éxito";
+
+                                                    String cuerpo = "<p>Saludos, <b>" + usuarioAuxiliar.getNombre() + "</b> le informamos de que su incidencia con id: " + usuarioAuxiliar.getIncidencia2().getId() +
+                                                            " ha sido registrada con éxito. </p> " +
+                                                            "<br>" +
+                                                            "<p> Puede consultar el estado de su incidencia desde el Sistema de Gestión de Incidencias. Le mandaremos un nuevo correo cuando haya sido resuelta.</p>";
+
+                                                    Funciones.enviarConGMail(destinatario, asunto, cuerpo);
+
                                                     contadorIncidencias++;
 
                                                     System.out.println(ANSI_GREEN + "---------------------------------------------------------------------");
                                                     System.out.println("Incidencia registrada con éxito!!");
                                                     System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+
+                                                    //TODO TELEGRAM ADMINISTRADOR2
 
                                                     opcionMenuPrioridadIncidencias = 0;
 
@@ -446,11 +481,25 @@ public class Main {
                                                         usuarioAuxiliar.getIncidencia3().setId(idIncidencia3);
                                                     }
 
+                                                    //Correo que se manda al usuario con la incidencia
+                                                    String destinatario = usuarioAuxiliar.getCorreo(); // Destinatario del mensaje
+
+                                                    String asunto = "Incidencia registrada con éxito";
+
+                                                    String cuerpo = "<p>Saludos, <b>" + usuarioAuxiliar.getNombre() + "</b> le informamos de que su incidencia con id: " + usuarioAuxiliar.getIncidencia3().getId() +
+                                                            " ha sido registrada con éxito. </p> " +
+                                                            "<br>" +
+                                                            "<p> Puede consultar el estado de su incidencia desde el Sistema de Gestión de Incidencias. Le mandaremos un nuevo correo cuando haya sido resuelta.</p>";
+
+                                                    Funciones.enviarConGMail(destinatario, asunto, cuerpo);
+
                                                     contadorIncidencias++;
 
                                                     System.out.println(ANSI_GREEN + "---------------------------------------------------------------------");
                                                     System.out.println("Incidencia registrada con éxito!!");
                                                     System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+
+                                                    //TODO TELEGRAM ADMINISTRADOR3
 
                                                     opcionMenuPrioridadIncidencias = 0;
                                                 }
