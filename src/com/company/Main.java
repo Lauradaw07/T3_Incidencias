@@ -211,7 +211,7 @@ public class Main {
 
                             String asunto = "Validación de tu cuenta";
 
-                            String cuerpo = "<h3>Bienvenido al Sistema de Gestión de Incidencias</h3>" +
+                            String cuerpo = "<h3>Bienvenido al Sistema de Gestión de Incidencias.</h3>" +
                                     "<p>Hola <b>" + usuario2.getNombre() + "</b> tu código de validación es: " + usuario2.getToken() +"</p>";
 
                             Funciones.enviarConGMail(destinatario, asunto, cuerpo);
@@ -721,6 +721,18 @@ public class Main {
                                                 Incidencia incidenciaResuelta1 = tecnicoAuxiliar.getIncidencia1();
 
                                                 tecnicoAuxiliar.setIncidenciaResuelta1(incidenciaResuelta1);
+
+                                                //Correo incidencia resuelta
+                                                String destinatario = incidenciaResuelta1.getUsuario().getCorreo(); // Destinatario del mensaje
+
+                                                String asunto = "Incidencia resuelta";
+
+                                                String cuerpo = "<p>Saludos, <b>" + incidenciaResuelta1.getUsuario().getNombre() + "</b> le informamos de que su incidencia con id: " + incidenciaResuelta1.getId() +
+                                                        " ha sido resuelta por uno de nuestros técnicos. </p> " +
+                                                        "<br>" +
+                                                        "<p> Puede consultar la resolución de su incidencia desde el Sistema de Gestión de Incidencias. Esperamos haber podido ayudarle.</p>";
+
+                                                Funciones.enviarConGMail(destinatario, asunto, cuerpo);
 
                                                 tecnicoAuxiliar.setIncidencia1(null);
 
