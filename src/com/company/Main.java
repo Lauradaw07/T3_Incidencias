@@ -62,6 +62,10 @@ public class Main {
 
         Scanner sc = new Scanner(System.in);
 
+        //MENSAJE TELEGRAM
+
+        String mensaje = "Nueva incidencia asignada!!";
+
         //CORREO ADMIN
         /*String destinatario = "laura.cabezas@fernando3martos.com"; // Destinatario del mensaje
 
@@ -1047,12 +1051,32 @@ public class Main {
                                                     if (tecnicoElegido.getIncidencia1() == null) {
                                                         tecnicoElegido.setIncidencia1(incidenciaElegida);
                                                         incidenciaElegida.setAsignada(true);
+
+                                                        //MENSAJE TELEGRAM
+                                                        Funciones.enviaMensajeTelegram(mensaje);
+
+                                                        if (Funciones.enviaMensajeTelegram(mensaje)) {
+                                                            System.out.println("Mensaje enviado con éxito");
+                                                        } else {
+                                                            System.out.println("Fallo al enviar el mensaje");
+                                                        }
+
                                                         System.out.println(ANSI_GREEN + "-------------------------------------------");
                                                         System.out.println("Incidencia asignada con éxito!!");
                                                         System.out.println("-------------------------------------------\n" + ANSI_RESET);
                                                     } else if (tecnicoElegido.getIncidencia2() == null) {
                                                         tecnicoElegido.setIncidencia2(incidenciaElegida);
                                                         incidenciaElegida.setAsignada(true);
+
+                                                        //MENSAJE TELEGRAM
+                                                        Funciones.enviaMensajeTelegram(mensaje);
+
+                                                        if (Funciones.enviaMensajeTelegram(mensaje)) {
+                                                            System.out.println("Mensaje enviado con éxito");
+                                                        } else {
+                                                            System.out.println("Fallo al enviar el mensaje");
+                                                        }
+
                                                         System.out.println(ANSI_GREEN + "-------------------------------------------");
                                                         System.out.println("Incidencia asignada con éxito!!");
                                                         System.out.println("-------------------------------------------\n" + ANSI_RESET);
