@@ -160,6 +160,14 @@ public class Usuario {
         }
     }
 
+    public boolean compruebaCorreo (String correoActual) {
+        if (correoActual.equalsIgnoreCase(getCorreo())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public boolean confirmaPassword (String passwordUsuario, String confirmacionPassword){
         if (passwordUsuario.equalsIgnoreCase(confirmacionPassword)){
             return true;

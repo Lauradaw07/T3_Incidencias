@@ -27,7 +27,7 @@ public class Main {
         Incidencia incidencia1;     Incidencia incidencia2;     Incidencia incidencia3;
 
         //Variables
-        String usuario, password, confirmacionPassword, nuevaPassword, borrarUsuario, borrarTecnico;
+        String usuario, password, correoActual, nuevoCorreo, confirmacionPassword, nuevaPassword, borrarUsuario, borrarTecnico;
 
         //Contadores
         int contadorUsuarios = 0, contadorTecnicos = 0, contadorIncidencias = 0, contadorUsuariosAdmin = 0;
@@ -573,6 +573,45 @@ public class Main {
                                             System.out.println(usuario1.toString());
                                             break;
                                         case 5:
+                                            do {
+                                                System.out.println("Introduzca su correo actual:");
+                                                correoActual = sc.nextLine();
+
+                                                if (!usuarioAuxiliar.compruebaCorreo(correoActual)) {
+                                                    System.out.println(ANSI_RED + "---------------------------------------------------------------------");
+                                                    System.out.println("ERROR: Correo incorrecto!!");
+                                                    System.out.println("---------------------------------------------------------------------\n" + ANSI_RESET);
+                                                }
+                                            } while (!usuarioAuxiliar.compruebaCorreo(correoActual));
+
+                                            if (usuarioAuxiliar.compruebaCorreo(correoActual)) {
+                                                System.out.println("Introduzca su nuevo correo:");
+                                                nuevoCorreo = sc.nextLine();
+
+                                                usuarioAuxiliar.setCorreo(nuevoCorreo);
+
+                                                usuarioAuxiliar.setValidado(false);
+
+                                                int nuevoToken = Funciones.generaToken();
+
+                                                usuarioAuxiliar.setToken(nuevoToken);
+
+                                                //Correo con token que se envía al usuario
+                                                String destinatario = usuarioAuxiliar.getCorreo(); // Destinatario del mensaje
+
+                                                String asunto = "Validación de tu cuenta";
+
+                                                String cuerpo = "<h3>Cambio de correo en el Sistema de Gestión de Incidencias</h3>" +
+                                                        "<p>Hola <b>" + usuarioAuxiliar.getNombre() + "</b> tu nuevo código de validación es: " + usuarioAuxiliar.getToken() +"</p>";
+
+                                                Funciones.enviarConGMail(destinatario, asunto, cuerpo);
+
+                                                System.out.println(ANSI_GREEN + "-------------------------------------------------");
+                                                System.out.println("Correo cambiado con éxito!!");
+                                                System.out.println("-------------------------------------------------\n" + ANSI_RESET);
+                                            }
+                                            break;
+                                        case 6:
                                             //CAMBIAR CONTRASEÑA USUARIO
                                             do {
                                                 System.out.println("Introduzca su contraseña actual:");
@@ -595,7 +634,7 @@ public class Main {
                                                 System.out.println("-------------------------------------------------\n" + ANSI_RESET);
                                             }
                                             break;
-                                        case 6:
+                                        case 7:
                                             //CERRAR SESIÓN USUARIO
                                             contadorIncidencias = 0;
                                             usuarioAuxiliar = null;

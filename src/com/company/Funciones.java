@@ -48,8 +48,9 @@ public class Funciones {
         System.out.println("| 2.- Consultar mis incidencias abiertas                            |");
         System.out.println("| 3.- Consultar mis incidencias cerradas                            |");
         System.out.println("| 4.- Mostrar mi perfil                                             |");
-        System.out.println("| 5.- Cambiar clave de acceso                                       |");
-        System.out.println("| 6.- Cerrar sesión                                                 |");
+        System.out.println("| 5.- Cambiar correo electrónico                                    |");
+        System.out.println("| 6.- Cambiar clave de acceso                                       |");
+        System.out.println("| 7.- Cerrar sesión                                                 |");
         System.out.println("---------------------------------------------------------------------");
         System.out.println("Elija una opción: \s" + ANSI_RESET);
     }
